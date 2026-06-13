@@ -565,3 +565,412 @@ Fault exports accumulating permanently is intentional. Over a demo session with 
 **IC2:** Fault export writing 100MB to PVC-2 → alert-manager simultaneously writing alerts to PVC-2 → storage contention → alert-manager write latency increases → alert delivery slows. Two pods writing to the same PVC for completely independent reasons.
 
 **IC3:** Flood mode fault export (500MB–1GB) → InfluxDB under sustained bulk read → opc-ua-collector's writes begin queuing → collector CPU spikes → network ingress backs up. batch-sync's read load propagates backwards up the pipeline to the collector.
+
+<aside>
+⚠️
+
+**NOTE:**
+
+- influxDB schema
+- Inter-Pod HTTP Contracts
+</aside>
+
+# InfluxDB Schema
+
+## Bucket
+
+One bucket for everything:
+
+```
+Bucket:     pump_station
+Org:        edgemind
+Retention:  7 days
+```
+
+## Three Measurements
+
+### `pump_telemetry`
+
+Written by: `opc-ua-collector`
+Read by: `feature-extractor`, `batch-sync`
+
+| Key | Type | Value |
+| --- | --- | --- |
+| **Tag**: `pump_id` | string | `pump1` | `pump2` | `pump3` |
+| **Tag**: `location` | string | `pump-station` |
+| **Field**: `vibration_radial` | float | mm/s RMS |
+| **Field**: `vibration_tangential` | float | mm/s RMS |
+| **Field**: `vibration_axial` | float | mm/s RMS |
+| **Field**: `temperature` | float | °C |
+| **Field**: `rpm` | float | rev/min |
+| **Timestamp** | nanoseconds UTC | from OPC-UA server timestamp |
+
+---
+
+### `pump_features`
+
+Written by: `feature-extractor` (every 30 seconds)
+Read by: `health-scorer`
+
+| Key | Type | Value |
+| --- | --- | --- |
+| **Tag**: `pump_id` | string | `pump1` | `pump2` | `pump3` |
+| **Field**: `vibration_rms_trend` | float | mm/s per second (slope) |
+| **Field**: `axial_dominance_ratio` | float | 0.0 to 1.0+ |
+| **Field**: `temp_rate_of_change` | float | °C per second (slope) |
+| **Field**: `rpm_stability` | float | standard deviation of RPM |
+| **Field**: `bearing_health` | float | 0 to 100 |
+| **Timestamp** | nanoseconds UTC | computation time |
+
+---
+
+### `pump_health`
+
+Written by: `health-scorer` (every 30 seconds)
+Read by: `batch-sync` (bulk export)
+
+| Key | Type | Value |
+| --- | --- | --- |
+| **Tag**: `pump_id` | string | `pump1` | `pump2` | `pump3` |
+| **Field**: `vibration_score` | float | 0.0 to 1.0 |
+| **Field**: `thermal_score` | float | 0.0 to 1.0 |
+| **Field**: `overall_health` | float | 0 to 100 |
+| **Field**: `state` | string | `HEALTHY` | `WARNING` | `CRITICAL` | `DATA_STALE` |
+| **Field**: `consecutive_warning_cycles` | integer | count |
+| **Timestamp** | nanoseconds UTC | scoring time |
+
+---
+
+## Tags vs Fields — Why It Matters
+
+Tags are indexed. Fields are not. This affects query performance.
+
+`pump_id` is a tag because every query filters or groups by it. `vibration_radial` is a field because it changes every second and indexing it would be wasteful.
+
+`state` is a field despite being a string — it changes frequently and you never filter InfluxDB by state directly (health-scorer handles that logic in Python).
+
+---
+
+## Line Protocol (What opc-ua-collector Writes)
+
+InfluxDB accepts writes in line protocol format:
+
+```
+pump_telemetry,pump_id=pump2,location=pump-station vibration_radial=1.65,vibration_tangential=1.42,vibration_axial=0.82,temperature=46.8,rpm=1452.3 1718180400000000000
+```
+
+Format: `measurement,tag_key=tag_val field_key=field_val timestamp_ns`
+
+In Python using `influxdb-client`:
+
+```python
+from influxdb_client import InfluxDBClient, Point
+from influxdb_client.client.write_api import SYNCHRONOUS
+
+client = InfluxDBClient(
+    url="http://data-historian-svc:8086",
+    token=os.environ["INFLUXDB_TOKEN"],
+    org="edgemind"
+)
+write_api = client.write_api(write_options=SYNCHRONOUS)
+
+point = (
+    Point("pump_telemetry")
+    .tag("pump_id", "pump2")
+    .tag("location", "pump-station")
+    .field("vibration_radial", 1.65)
+    .field("vibration_tangential", 1.42)
+    .field("vibration_axial", 0.82)
+    .field("temperature", 46.8)
+    .field("rpm", 1452.3)
+    .time(opc_ua_timestamp)  # datetime object from OPC-UA
+)
+
+write_api.write(bucket="pump_station", record=point)
+```
+
+---
+
+## Flux Queries (What Downstream Pods Run)
+
+**feature-extractor — last 5 minutes of telemetry for one pump:**
+
+```python
+query = f'''
+from(bucket: "pump_station")
+  |> range(start: -5m)
+  |> filter(fn: (r) => r._measurement == "pump_telemetry")
+  |> filter(fn: (r) => r.pump_id == "{pump_id}")
+  |> pivot(
+       rowKey: ["_time"],
+       columnKey: ["_field"],
+       valueColumn: "_value"
+     )
+  |> sort(columns: ["_time"])
+'''
+```
+
+Returns one row per timestamp with all 5 fields as columns.
+
+**health-scorer — latest features for all pumps:**
+
+```python
+query = '''
+from(bucket: "pump_station")
+  |> range(start: -2m)
+  |> filter(fn: (r) => r._measurement == "pump_features")
+  |> last()
+  |> pivot(
+       rowKey: ["pump_id"],
+       columnKey: ["_field"],
+       valueColumn: "_value"
+     )
+'''
+```
+
+Returns one row per pump with all computed features.
+
+**batch-sync — bulk export last 30 minutes for one pump:**
+
+```python
+query = f'''
+from(bucket: "pump_station")
+  |> range(start: -30m)
+  |> filter(fn: (r) => r.pump_id == "{pump_id}")
+  |> pivot(
+       rowKey: ["_time"],
+       columnKey: ["_field"],
+       valueColumn: "_value"
+     )
+  |> sort(columns: ["_time"])
+'''
+```
+
+Covers all three measurements in one query — filter by pump_id applies across all.
+
+---
+
+## InfluxDB Connection Details
+
+```
+Service DNS (within pump-station namespace): http://data-historian-svc:8086
+Service DNS (from monitoring namespace):     http://data-historian-svc.pump-station.svc.cluster.local:8086
+Org:    edgemind
+Bucket: pump_station
+Token:  injected via Kubernetes Secret → INFLUXDB_TOKEN env var
+```
+
+Only pump-station pods write to InfluxDB. edgemind-agents never queries InfluxDB directly — it reads Kubernetes infrastructure metrics from Prometheus only.
+
+# Inter-Pod HTTP Contracts
+
+Two HTTP interfaces. Both are synchronous POST from health-scorer to downstream pods.
+
+---
+
+## Contract 1 — health-scorer → alert-manager
+
+**Endpoint:** `POST http://alert-manager-svc:8090/alert`
+
+**Trigger:** health-scorer crosses WARNING or CRITICAL threshold for any pump, sustained for 2+ consecutive cycles.
+
+**Request payload:**
+
+```json
+{
+  "pump_id": "pump2",
+  "state": "WARNING",
+  "overall_health": 61.3,
+  "vibration_score": 0.43,
+  "thermal_score": 0.89,
+  "bearing_health": 61.3,
+  "trigger": "bearing_fault_pattern",
+  "consecutive_cycles": 2,
+  "timestamp": "2025-06-12T08:32:15Z"
+}
+```
+
+`trigger` values: `bearing_fault_pattern`, `thermal_anomaly`, `data_stale`, `combined_fault`
+
+**Response (200):**
+
+```json
+{
+  "ok": true,
+  "alert_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+}
+```
+
+**Response (429) — deduplication:**
+
+```json
+{
+  "ok": false,
+  "reason": "duplicate",
+  "existing_alert_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+}
+```
+
+alert-manager handles its own deduplication. health-scorer does not need to track whether it already sent an alert — it just POSTs on every WARNING/CRITICAL cycle. alert-manager suppresses duplicates internally.
+
+---
+
+## Contract 2 — health-scorer → batch-sync
+
+**Endpoint:** `POST http://batch-sync-svc:8091/trigger`
+
+**Trigger:** health-scorer crosses WARNING or CRITICAL threshold — same condition as alert-manager POST. Both are sent in the same scoring cycle.
+
+**Request payload:**
+
+```json
+{
+  "pump_id": "pump2",
+  "state": "CRITICAL",
+  "overall_health": 42.1,
+  "trigger_reason": "bearing_fault_pattern",
+  "timestamp": "2025-06-12T08:32:15Z"
+}
+```
+
+**Response (200):**
+
+```json
+{
+  "ok": true,
+  "export_id": "a3f8c201-9b44-4e12-bc34-5d67e8f90a12",
+  "estimated_size_mb": 85.2
+}
+```
+
+**Response (409) — export already in progress:**
+
+```json
+{
+  "ok": false,
+  "reason": "export_in_progress",
+  "active_export_id": "a3f8c201-9b44-4e12-bc34-5d67e8f90a12"
+}
+```
+
+batch-sync processes one export at a time. If health-scorer triggers again during an active export, batch-sync rejects it with 409. health-scorer logs this and moves on — no retry logic needed.
+
+---
+
+## health-scorer Log Format Contract
+
+This was mentioned in the Network+Log agent section. Documenting it here as an inter-pod contract because the agent parses it:
+
+```python
+# health-scorer must log this exact format on every scoring cycle
+logger.info(
+    "pump=%s bearing_health=%.1f state=%s action=%s",
+    pump_id, bearing_health, state, action
+)
+
+# Examples:
+# pump=pump2 bearing_health=42.1 state=CRITICAL action=trigger_export
+# pump=pump1 bearing_health=87.3 state=HEALTHY action=none
+# pump=pump3 bearing_health=68.4 state=WARNING action=trigger_alert
+```
+
+`action` values: `none`, `trigger_alert`, `trigger_export`, `trigger_both`
+
+The network+log agent parses this with:
+
+```python
+HEALTH_LOG_PATTERN = re.compile(
+    r"pump=(\w+)\s+bearing_health=([\d.]+)\s+state=(\w+)\s+action=(\w+)"
+)
+```
+
+This is a coding contract. Both health-scorer and the log agent must honour this format.
+
+---
+
+## Service Port Summary
+
+| Pod | Port | Protocol | Exposed as |
+| --- | --- | --- | --- |
+| sensor-sim-1/2/3 | 4840-4842 (OPC-UA), 8080-8082 (HTTP inject) | OPC-UA + HTTP | ClusterIP |
+| data-historian | 8086 | HTTP (InfluxDB API) | ClusterIP |
+| alert-manager | 8090 | HTTP | ClusterIP |
+| batch-sync | 8091 | HTTP | ClusterIP |
+| edgemind-server | 8080 | HTTP + WebSocket | NodePort 30080 |
+| edgemind-agents | 8090 | HTTP (health probe only) | ClusterIP |
+
+# **Containerization Plan**
+
+## The Core Idea
+
+The entire system runs as **9 isolated containers** on a single shared network. Each container represents one real-world service from the ABB Edgenius pipeline. They communicate only through their defined interfaces — OPC-UA subscriptions, InfluxDB reads/writes, and HTTP calls — exactly as they would in a production edge deployment.
+
+The point is not just to run the services. It's that **the container resource behavior under fault conditions is the demo**. EdgeMind watches CPU, memory, filesystem, and network metrics from the Kubernetes infra layer — so the containers have to behave realistically under stress, with no artificial instrumentation added.
+
+---
+
+## The 9 Containers and What They Are
+
+**Phase 0 :**
+
+**sensor-sim-1, 2, 3** — Three instances of the same Docker image, each given a different identity via a single environment variable (`PUMP_ID`). Each runs an OPC-UA server emitting live vibration, temperature, and RPM data. A separate HTTP endpoint on each container accepts fault injection commands during the demo.
+
+**Phase 1 :**
+
+**opc-ua-collector** — Subscribes to all three OPC-UA servers simultaneously. Batches incoming readings every 500ms and writes them to InfluxDB. This is intentionally a single process handling all three sensors — that's what makes it the natural bottleneck during a flood fault.
+
+**data-historian** — Just InfluxDB 2.x. No custom code at all. Configured with a single bucket (`pump_station`), 7-day retention, and an auth token. Everything else — writes, queries, TSM compaction — happens internally. The compaction behavior creates organic PVC I/O stress with zero intervention needed.
+
+**feature-extractor** — Runs on a 30-second cycle. Each cycle it queries the last 5 minutes of raw telemetry, computes derived features (vibration trend, axial dominance ratio, bearing health score), and writes the results back to InfluxDB. Has one important env var: `LEAK_MODE`. When enabled, each cycle retains its numpy buffer in memory instead of releasing it — RSS grows ~15–20 MB/min until the container is OOMKilled. This is how the `seal_leak` scenario produces a real memory anomaly without any artificial kill switch.
+
+**health-scorer** — Reads the latest computed features from InfluxDB every 30 seconds and classifies each pump as HEALTHY, WARNING, or CRITICAL. When a pump crosses a threshold, it POSTs to both `alert-manager` and `batch-sync`. It never talks to `feature-extractor` directly — the InfluxDB decoupling is intentional so that when `feature-extractor` is slow, `health-scorer` silently works on stale data, which itself becomes a detectable anomaly.
+
+**alert-manager** — Receives POSTs from `health-scorer`, enriches them with human-readable descriptions and recommended actions using hardcoded templates, and appends them to a daily JSONL log file on the shared export volume. Also exposes a REST API that the dashboard polls every 15 seconds. During flood scenarios, it receives two simultaneous alert streams (actual fault alerts + DATA_STALE alerts) — this burst is what stresses its write path.
+
+**batch-sync** — Exports telemetry data to Parquet files on the shared export volume, either on a 5-minute schedule or immediately when triggered by `health-scorer` on a fault. Fault-triggered exports are deliberately large (30 minutes of data across three InfluxDB measurements) — 50–100 MB at normal rate, up to 1 GB during a flood. The Parquet snappy compression is CPU-intensive by design. Fault exports are kept permanently so PVC-2 fills measurably across a demo session.
+
+---
+
+## Two Volumes, One Network
+
+All 9 containers sit on a single internal network and address each other by service name. No complex routing needed.
+
+Two persistent volumes are required:
+
+**PVC-1** holds InfluxDB's data files. Only `data-historian` writes here. The interesting thing is InfluxDB's internal TSM compaction creates large sequential read/write bursts organically — no triggering needed.
+
+**PVC-2** is the export/alert volume. Both `batch-sync` and `alert-manager` write here independently. During flood scenarios, they write simultaneously — a large Parquet export landing at the same time as a burst of alert logs. This concurrent write contention is one of the key cross-service correlations the demo needs to surface.
+
+---
+
+## The Key Design Decisions
+
+**One image, three pump identities** — `sensor-sim` is built once. `PUMP_ID` as an environment variable is the only thing that differentiates the three containers at runtime. This is the correct pattern: the code is identical, the operational context differs.
+
+**No custom metrics on any container** — Nothing in any container registers a Prometheus metric or exposes a `/metrics` endpoint for application data. EdgeMind must detect everything from standard kubelet container metrics. If a container can't produce a detectable anomaly through its natural CPU, memory, network, or filesystem behavior, the scenario needs to be redesigned — not instrumented.
+
+**Resource limits are part of the demo spec** — The memory limit on `feature-extractor` is set intentionally so that `LEAK_MODE` produces an OOMKill within a predictable demo window (~25–35 minutes). Too high a limit and nothing visible happens. Too low and the container crashes during normal operation. The limits have to be tuned to make the stress scenarios land within the demo session.
+
+**InfluxDB decoupling is architecturally intentional** — Services never call each other directly for data. Everything goes through InfluxDB as the intermediary. This is what creates the indirect correlations: a flood three hops upstream silently degrades `health-scorer`'s data freshness without `health-scorer` knowing anything is wrong.
+
+**PVC-2 fills permanently** — Fault exports are never deleted. Scheduled exports clean up after 24 hours. Over a demo session with multiple fault injections, `batch-sync` accumulates Parquet files and PVC-2 fills at a measurable rate. The storage agent detects the fill rate slope and forecasts time-to-full. This is the PVC stress scenario — it emerges from the accumulation, not from a single event.
+
+---
+
+## What Gets Stressed and Why
+
+Each fault scenario stresses different containers in different ways, which is the whole point:
+
+**Flood** stresses `opc-ua-collector` (CPU, network ingress at 10x), which backs up InfluxDB writes, which delays `feature-extractor` queries, which means `health-scorer` gets stale features, which floods `alert-manager` with DATA_STALE alerts — all from one sensor emitting faster than normal.
+
+**Bearing fault / imbalance** stresses `feature-extractor` (elevated CPU on rising vibration computation) and triggers `batch-sync` for a large fault export (CPU spike from Parquet serialisation, large PVC-2 write).
+
+**Seal leak with LEAK_MODE** stresses `feature-extractor` memory linearly until OOMKill, which degrades `health-scorer` (stale features), which triggers further downstream alerts.
+
+**Combined cascade** (flood + overheat simultaneously) fires all four agent types at once and is the maximum stress scenario for the full pipeline.
+
+---
+
+## Phase 2 — Moving to Kubernetes
+
+When moving from Docker Compose to k3s, the conceptual mapping is straightforward: each container becomes a Deployment with one replica, named volumes become PersistentVolumeClaims, the shared network becomes ClusterIP Services, and environment variables move to ConfigMaps and Secrets. The `LEAK_MODE` flag is toggled by patching the `feature-extractor` Deployment in place — no rebuild needed. The inject ports on the sensor-sim containers are exposed via NodePort or port-forward for demo-time fault injection.

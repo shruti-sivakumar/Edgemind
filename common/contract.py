@@ -111,6 +111,8 @@ def axial_baseline(pump_id: str) -> float:
 INFLUX_BUCKET = "pump_station"
 
 TAG_PUMP_ID = "pump_id"
+TAG_LOCATION = "location"
+TAG_LOCATION_VALUE = "pump-station"
 
 # Raw telemetry written by opc-ua-collector. Fields are the 5 raw PARAMS.
 M_TELEMETRY = "pump_telemetry"
@@ -131,7 +133,58 @@ FEATURE_FIELDS: List[str] = [
     F_BEARING_HEALTH,
 ]
 
+# Health state written by health-scorer (every 30 s).
+M_HEALTH = "pump_health"
+F_VIBRATION_SCORE = "vibration_score"
+F_THERMAL_SCORE = "thermal_score"
+F_OVERALL_HEALTH = "overall_health"
+F_STATE = "state"
+F_CONSECUTIVE_WARNING_CYCLES = "consecutive_warning_cycles"
+
+HEALTH_FIELDS: List[str] = [
+    F_VIBRATION_SCORE,
+    F_THERMAL_SCORE,
+    F_OVERALL_HEALTH,
+    F_STATE,
+    F_CONSECUTIVE_WARNING_CYCLES,
+]
+
+# Health-state string values written to F_STATE.
+STATE_HEALTHY = "HEALTHY"
+STATE_WARNING = "WARNING"
+STATE_CRITICAL = "CRITICAL"
+STATE_DATA_STALE = "DATA_STALE"
+
 # Health-state thresholds on bearing_health (used downstream by health-scorer;
 # defined here so the whole pipeline agrees).
 HEALTH_HEALTHY_MIN = 75.0   # >= 75      -> HEALTHY
 HEALTH_WARNING_MIN = 50.0   # 50 .. 75   -> WARNING ; < 50 -> CRITICAL
+
+# Stale-data threshold: if the latest pump_features entry is older than this,
+# health-scorer flags the pump as DATA_STALE.
+HEALTH_STALE_THRESHOLD_S = 90.0
+
+# ---------------------------------------------------------------------------
+# Inter-pod HTTP contracts (health-scorer → alert-manager / batch-sync).
+# Service DNS names match Kubernetes ClusterIP service names.
+# ---------------------------------------------------------------------------
+
+ALERT_MANAGER_URL = "http://alert-manager-svc:8090"
+ALERT_MANAGER_PORT = 8090
+ALERT_MANAGER_ALERT_PATH = "/alert"
+
+BATCH_SYNC_URL = "http://batch-sync-svc:8091"
+BATCH_SYNC_PORT = 8091
+BATCH_SYNC_TRIGGER_PATH = "/trigger"
+
+# Trigger values used in health-scorer → alert-manager payloads.
+TRIGGER_BEARING_FAULT = "bearing_fault_pattern"
+TRIGGER_THERMAL_ANOMALY = "thermal_anomaly"
+TRIGGER_DATA_STALE = "data_stale"
+TRIGGER_COMBINED_FAULT = "combined_fault"
+
+# health-scorer log format action values (parsed by the network+log agent).
+ACTION_NONE = "none"
+ACTION_TRIGGER_ALERT = "trigger_alert"
+ACTION_TRIGGER_EXPORT = "trigger_export"
+ACTION_TRIGGER_BOTH = "trigger_both"

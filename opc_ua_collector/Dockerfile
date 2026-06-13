@@ -18,7 +18,7 @@ RUN pip install -r requirements.txt
 COPY common/ ./common/
 COPY opc_ua_collector/collector.py opc_ua_collector/main.py ./
 
-ENV INFLUX_URL=http://influxdb:8086 \
+ENV INFLUX_URL=http://data-historian:8086 \
     INFLUX_ORG=edgemind \
     INFLUX_BUCKET=pump_station \
     LOG_LEVEL=INFO

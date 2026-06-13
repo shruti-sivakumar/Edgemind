@@ -9,7 +9,7 @@ Single process for all 3 sensors — the intended flood bottleneck.
 
 Environment:
   SENSOR_ENDPOINTS  pump1=opc.tcp://sensor-sim-1:4840,pump2=...,pump3=...
-  INFLUX_URL        http://influxdb:8086
+  INFLUX_URL        http://data-historian:8086
   INFLUX_TOKEN      <token>
   INFLUX_ORG        edgemind
   INFLUX_BUCKET     pump_station   (default from contract)
@@ -39,6 +39,8 @@ from common.contract import (
     OPC_PUMP_OBJECT,
     OPC_ROOT_OBJECT,
     PARAMS,
+    TAG_LOCATION,
+    TAG_LOCATION_VALUE,
     TAG_PUMP_ID,
 )
 from collector import TelemetryBuffer, is_valid
@@ -63,7 +65,7 @@ _DEFAULT_ENDPOINTS = (
     "pump2=opc.tcp://sensor-sim-2:4841,"
     "pump3=opc.tcp://sensor-sim-3:4842"
 )
-INFLUX_URL = os.environ.get("INFLUX_URL", "http://influxdb:8086")
+INFLUX_URL = os.environ.get("INFLUX_URL", "http://data-historian:8086")
 INFLUX_TOKEN = os.environ.get("INFLUX_TOKEN", "")
 INFLUX_ORG = os.environ.get("INFLUX_ORG", "edgemind")
 BUCKET = os.environ.get("INFLUX_BUCKET", INFLUX_BUCKET)
@@ -153,7 +155,7 @@ async def flush_loop(buffer: TelemetryBuffer, write_api) -> None:
         if samples:
             points: List[Point] = []
             for pump_id, vals, ts in samples:
-                p = Point(M_TELEMETRY).tag(TAG_PUMP_ID, pump_id)
+                p = Point(M_TELEMETRY).tag(TAG_PUMP_ID, pump_id).tag(TAG_LOCATION, TAG_LOCATION_VALUE)
                 for param in PARAMS:
                     p.field(param, float(vals[param]))
                 p.time(ts)

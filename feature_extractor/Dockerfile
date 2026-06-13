@@ -17,7 +17,7 @@ RUN pip install -r requirements.txt
 COPY common/ ./common/
 COPY feature_extractor/features.py feature_extractor/main.py ./
 
-ENV INFLUX_URL=http://influxdb:8086 \
+ENV INFLUX_URL=http://data-historian:8086 \
     INFLUX_ORG=edgemind \
     INFLUX_BUCKET=pump_station \
     CYCLE_S=30 \

@@ -6,7 +6,7 @@ from InfluxDB, compute derived features (features.compute_features), and write
 them back as `pump_features`.
 
 Environment:
-  INFLUX_URL      http://influxdb:8086
+  INFLUX_URL      http://data-historian:8086
   INFLUX_TOKEN    <token>
   INFLUX_ORG      edgemind
   INFLUX_BUCKET   pump_station   (default from contract)
@@ -51,7 +51,7 @@ logging.basicConfig(
 )
 log = logging.getLogger("feature-extractor")
 
-INFLUX_URL = os.environ.get("INFLUX_URL", "http://influxdb:8086")
+INFLUX_URL = os.environ.get("INFLUX_URL", "http://data-historian:8086")
 INFLUX_TOKEN = os.environ.get("INFLUX_TOKEN", "")
 INFLUX_ORG = os.environ.get("INFLUX_ORG", "edgemind")
 BUCKET = os.environ.get("INFLUX_BUCKET", INFLUX_BUCKET)
