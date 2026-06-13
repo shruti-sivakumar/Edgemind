@@ -45,9 +45,6 @@ brew install k3d kubectl helm
 docker context use orbstack
 docker ps
 ```
-
-If you prefer Docker Desktop instead of OrbStack, install it from https://docker.com and skip the `docker context use orbstack` step. Do **not** run both at the same time.
-
 **Memory:** If you are on 8 GB RAM, cap OrbStack's memory limit to 4 GB in OrbStack → Settings → Resources before proceeding.
 
 ---
