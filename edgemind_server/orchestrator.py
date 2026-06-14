@@ -91,14 +91,14 @@ ALERT TYPES:
 
 You MUST end your response with a JSON block in this exact format:
 ```json
-{
+{{
   "root_cause_pod": "<pod name>",
   "causal_chain": ["<pod1>", "<pod2>", "<pod3>"],
   "alert_type": "cascade|contention|lifecycle",
   "confidence": 0.0,
   "insight": "<2-3 sentences in plain English for a field engineer>",
   "recommendation": "<1 sentence action>"
-}
+}}
 ```
 
 OPERATOR LANGUAGE — use these names in insight:
