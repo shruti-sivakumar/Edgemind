@@ -3,6 +3,7 @@ import logging
 import os
 import signal
 import sys
+from tracemalloc import start
 
 import redis.asyncio as aioredis
 from kubernetes import client as k8s_client, config as k8s_config
@@ -13,7 +14,7 @@ from edgemind_agents.agents.cpu_agent import CPUAgent
 from edgemind_agents.agents.memory_agent import MemoryAgent
 from edgemind_agents.agents.storage_agent import StorageAgent
 from edgemind_agents.agents.network_log_agent import NetworkLogAgent
-from edgemind_agents.health_server import run_health_server
+from edgemind_agents.health_server import start_health_server
 
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
 logging.basicConfig(
@@ -74,7 +75,6 @@ async def main():
         asyncio.create_task(run_with_restart(memory_agent.run,   "memory_agent")),
         asyncio.create_task(run_with_restart(storage_agent.run,  "storage_agent")),
         asyncio.create_task(run_with_restart(network_agent.run,  "network_agent")),
-        asyncio.create_task(run_health_server(port=8090)),
     ]
 
     shutdown_event = asyncio.Event()
@@ -94,4 +94,5 @@ async def main():
 
 
 if __name__ == "__main__":
+    start_health_server()
     asyncio.run(main())

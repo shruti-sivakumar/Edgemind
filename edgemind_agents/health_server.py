@@ -1,29 +1,41 @@
-import asyncio
-import logging
-from aiohttp import web
+"""
+health_server.py — minimal threaded HTTP health server.
 
-log = logging.getLogger(__name__)
+Runs in a daemon thread completely separate from the asyncio event loop,
+so it always responds even when the main loop is saturated with Prometheus queries.
+"""
 
-_agent_status: dict = {}
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
-
-def update_agent_status(agent_name: str, status: str) -> None:
-    _agent_status[agent_name] = status
-
-
-async def health_handler(request: web.Request) -> web.Response:
-    return web.json_response({
-        "status": "ok",
-        "agents": _agent_status,
-    })
+PORT = 8090
+_healthy = True
 
 
-async def run_health_server(port: int = 8090) -> None:
-    app = web.Application()
-    app.router.add_get("/health", health_handler)
-    runner = web.AppRunner(app)
-    await runner.setup()
-    site = web.TCPSite(runner, "0.0.0.0", port)
-    await site.start()
-    log.info("Health server running on :%d", port)
-    await asyncio.Event().wait()
+def set_healthy(val: bool) -> None:
+    global _healthy
+    _healthy = val
+
+
+class _Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == "/health":
+            body = b'{"ok": true}'
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+    def log_message(self, format, *args):
+        pass  # silence access logs
+
+
+def start_health_server() -> None:
+    """Start health server in a daemon thread. Call once at startup."""
+    server = HTTPServer(("0.0.0.0", PORT), _Handler)
+    t = threading.Thread(target=server.serve_forever, daemon=True)
+    t.start()
