@@ -177,8 +177,22 @@ def get_pod_logs(
     tail_lines = min(tail_lines, 100)
     try:
         v1 = k8s_client.CoreV1Api()
+        # Resolve prefix → full pod name if an exact match doesn't exist
+        resolved_name = pod_name
+        try:
+            v1.read_namespaced_pod(name=pod_name, namespace=namespace)
+        except Exception:
+            pods = v1.list_namespaced_pod(namespace=namespace)
+            match = next(
+                (p.metadata.name for p in pods.items
+                 if p.metadata.name.startswith(pod_name)),
+                None,
+            )
+            if match:
+                log.info("get_pod_logs: resolved '%s' → '%s'", pod_name, match)
+                resolved_name = match
         logs = v1.read_namespaced_pod_log(
-            name=pod_name,
+            name=resolved_name,
             namespace=namespace,
             tail_lines=tail_lines,
             _preload_content=True,
@@ -190,7 +204,7 @@ def get_pod_logs(
         )]
         return {
             "success": True,
-            "pod": pod_name,
+            "pod": resolved_name,
             "namespace": namespace,
             "total_lines": len(lines),
             "error_lines": error_lines[:20],

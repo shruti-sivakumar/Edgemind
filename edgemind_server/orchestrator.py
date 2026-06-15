@@ -153,6 +153,11 @@ FINDINGS:
 Investigate this event. Use tools to gather context, trace the causal chain
 back to its origin, then provide your analysis."""
 
+    def _clean_pod_name(self, name: str) -> str:
+        """Strip ReplicaSet + pod hash suffixes from full pod names."""
+        import re
+        return re.sub(r'-[a-z0-9]{5,12}-[a-z0-9]{5}$', '', name)
+
     def _extract_json_result(self, content: str) -> Optional[Dict]:
         import re
         match = re.search(r"```json\s*(.*?)\s*```", content, re.DOTALL)
@@ -291,15 +296,17 @@ back to its origin, then provide your analysis."""
         result_json = self._extract_json_result(final_content)
 
         if result_json:
+            root_cause = self._clean_pod_name(result_json.get("root_cause_pod", "unknown"))
+            causal_chain = [self._clean_pod_name(p) for p in result_json.get("causal_chain", [])]
             log.info(
                 "Analysis complete: root_cause=%s confidence=%.2f duration=%.1fs",
-                result_json.get("root_cause_pod"),
+                root_cause,
                 result_json.get("confidence"),
                 duration,
             )
             return OrchestratorResult(
-                root_cause_pod=result_json.get("root_cause_pod", "unknown"),
-                causal_chain=result_json.get("causal_chain", []),
+                root_cause_pod=root_cause,
+                causal_chain=causal_chain,
                 alert_type=result_json.get("alert_type", "cascade"),
                 confidence=float(result_json.get("confidence", 0.5)),
                 insight=result_json.get("insight", "Analysis complete."),
