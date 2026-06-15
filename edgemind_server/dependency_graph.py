@@ -64,7 +64,7 @@ class DependencyGraph:
         # into naming a Service as root_cause_pod. KNOWN_PIPELINE provides all edges.
         log.debug("K8s service discovery disabled — KNOWN_PIPELINE provides all edges")
         return []
-
+d
     def _build_json(self) -> dict:
         nodes = set()
         for src, dst in self._edges:
