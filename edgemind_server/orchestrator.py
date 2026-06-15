@@ -23,8 +23,10 @@ from edgemind_server.tools import TOOL_DEFINITIONS, execute_tool
 
 log = logging.getLogger(__name__)
 
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
-GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
+LLM_API_KEY = os.environ.get("LLM_API_KEY", os.environ.get("GROQ_API_KEY", ""))
+LLM_BASE_URL = os.environ.get("LLM_BASE_URL", "https://api.groq.com/openai/v1")
+LLM_MODEL = os.environ.get("LLM_MODEL", os.environ.get("GROQ_MODEL", "gemini-2.0-flash"))
+
 MAX_TOOL_TURNS = 4
 
 
@@ -116,8 +118,8 @@ class Orchestrator:
     def __init__(self, dependency_graph: DependencyGraph):
         self._graph = dependency_graph
         self._client = openai.OpenAI(
-            api_key=GROQ_API_KEY,
-            base_url="https://api.groq.com/openai/v1",
+            api_key=LLM_API_KEY,
+            base_url=LLM_BASE_URL,
         )
 
     def _build_system_prompt(self) -> str:
@@ -173,7 +175,7 @@ Investigate this event. Use tools to gather context, then provide your analysis.
             log.info("Orchestrator turn %d/%d", turn + 1, MAX_TOOL_TURNS + 1)
             try:
                 response = self._client.chat.completions.create(
-                    model=GROQ_MODEL,
+                    model=LLM_MODEL,
                     messages=messages,
                     tools=TOOL_DEFINITIONS,
                     tool_choice="auto",
