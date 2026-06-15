@@ -164,6 +164,11 @@ class CorrelationFilter:
         self._window_start = None
         self._seen_keys = set()
 
+    def reset_cooldown(self) -> None:
+        """Reset cooldown so the next fault triggers immediately. Call when alerts are cleared."""
+        self._last_trigger_time = -999.0
+        self._reset_window()
+
     async def run(self) -> None:
         """Main loop. Runs forever, reading findings from Redis."""
         log.info("Correlation filter running (window=%ds)", CORRELATION_WINDOW_S)

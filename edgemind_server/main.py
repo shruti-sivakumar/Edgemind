@@ -68,6 +68,7 @@ app.add_middleware(
 _redis: Optional[aioredis.Redis] = None
 _graph: Optional[DependencyGraph] = None
 _orchestrator: Optional[Orchestrator] = None
+_correlation_filter: Optional[CorrelationFilter] = None
 _executor = ThreadPoolExecutor(max_workers=1)  # One orchestrator call at a time
 
 # Track IDs of findings already relayed (to avoid duplicates)
@@ -184,6 +185,8 @@ async def get_agent_status():
 @app.delete("/api/alerts")
 async def clear_alerts():
     _recent_alerts.clear()
+    if _correlation_filter:
+        _correlation_filter.reset_cooldown()
     return JSONResponse({"cleared": True})
 
 
@@ -248,11 +251,12 @@ async def startup():
 
 async def _run_correlation_filter():
     """Run the correlation filter as a background task."""
-    cf = CorrelationFilter(
+    global _correlation_filter
+    _correlation_filter = CorrelationFilter(
         redis=_redis,
         on_trigger=_on_correlated_bundle,
     )
-    await cf.run()
+    await _correlation_filter.run()
 
 
 @app.on_event("shutdown")
