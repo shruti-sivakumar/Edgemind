@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 
 CORRELATION_WINDOW_S = 45
 REDIS_BRPOP_TIMEOUT = 1  # seconds — keeps loop responsive to shutdown
-ORCHESTRATOR_COOLDOWN_S = 120  # max 1 orchestrator call per 2 minutes
+ORCHESTRATOR_COOLDOWN_S = 600
 
 # Minimum findings to trigger orchestrator
 MIN_AGENTS_FOR_TRIGGER = 2   # 2+ different agents = trigger
