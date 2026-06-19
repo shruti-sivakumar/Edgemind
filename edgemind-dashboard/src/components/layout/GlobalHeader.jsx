@@ -3,37 +3,62 @@ import { NavLink } from 'react-router-dom'
 import { useAppState } from '../../core/store/AppContext.jsx'
 
 const NAV = [
-  { to: '/',            label: 'Command Center', icon: '⬡' },
-  { to: '/radar',       label: 'Resource Radar',  icon: '◈' },
-  { to: '/graph',       label: 'Dependency Graph', icon: '⬡' },
-  { to: '/timeline',    label: 'Anomaly Timeline', icon: '▬' },
-  { to: '/investigate', label: 'AI Investigation', icon: '◎' },
-  { to: '/demo',        label: 'Demo Lab',         icon: '⚡' },
+  { to: '/',            label: 'Command Center' },
+  { to: '/radar',       label: 'Resource Radar'  },
+  { to: '/graph',       label: 'Dependency Graph' },
+  { to: '/timeline',    label: 'Anomaly Timeline' },
+  { to: '/investigate', label: 'AI Investigation' },
+  { to: '/demo',        label: 'Demo Lab'         },
 ]
 
-function UtcClock() {
-  const [time, setTime] = useState(() => new Date().toUTCString().slice(17, 25))
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
+function LocalClock() {
+  const [now, setNow] = useState(() => new Date())
   useEffect(() => {
-    const id = setInterval(() => setTime(new Date().toUTCString().slice(17, 25)), 1000)
+    const id = setInterval(() => setNow(new Date()), 1000)
     return () => clearInterval(id)
   }, [])
-  return <span style={{ color: 'var(--color-text-tertiary)', fontVariantNumeric: 'tabular-nums', fontSize: 12 }}>{time} UTC</span>
+  const d = now
+  const h = d.getHours()
+  const ampm = h >= 12 ? 'pm' : 'am'
+  const h12 = h % 12 || 12
+  const mm = String(d.getMinutes()).padStart(2, '0')
+  const label = `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()} ${h12}:${mm} ${ampm}`
+  return (
+    <span style={{ color: 'var(--color-text-secondary)', fontVariantNumeric: 'tabular-nums', fontSize: 13 }}>
+      {label}
+    </span>
+  )
 }
 
-function WsDot({ status }) {
-  const color = status === 'connected' ? 'var(--color-success)' :
-                status === 'reconnecting' ? 'var(--color-warning)' : 'var(--color-danger)'
+function LogoMark() {
   return (
-    <span
-      title={`WebSocket: ${status}`}
-      className={status !== 'connected' ? 'animate-blink' : ''}
-      style={{ width: 8, height: 8, borderRadius: '50%', background: color, display: 'inline-block', flexShrink: 0 }}
-    />
+    <div style={{
+      width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
+      background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+      border: '2px solid #e53e3e',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      boxShadow: '0 1px 4px rgba(0,0,0,0.25)',
+    }}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="2" fill="#e53e3e" />
+        <line x1="12" y1="10" x2="12" y2="4"  stroke="#90cdf4" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="12" y1="14" x2="7"  y2="19" stroke="#90cdf4" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="12" y1="14" x2="17" y2="19" stroke="#90cdf4" strokeWidth="1.5" strokeLinecap="round" />
+        <circle cx="12" cy="4"  r="1.5" fill="#90cdf4" />
+        <circle cx="7"  cy="19" r="1.5" fill="#90cdf4" />
+        <circle cx="17" cy="19" r="1.5" fill="#90cdf4" />
+      </svg>
+    </div>
   )
 }
 
 export default function GlobalHeader() {
   const { ws } = useAppState()
+  const wsColor = ws.status === 'connected' ? 'var(--color-success)'
+    : ws.status === 'reconnecting' ? 'var(--color-warning)'
+    : 'var(--color-danger)'
 
   return (
     <header style={{
@@ -41,20 +66,24 @@ export default function GlobalHeader() {
       flexShrink: 0,
       display: 'flex',
       alignItems: 'center',
-      padding: '0 16px',
-      borderBottom: '3px solid var(--color-danger)',
+      padding: '0 20px',
+      borderBottom: '0px solid var(--color-danger)',
       background: 'var(--color-bg-card)',
       gap: 0,
     }}>
       {/* Brand */}
-      <span style={{ color: 'var(--color-danger)', fontSize: 18, fontWeight: 700, marginRight: 6 }}>◈</span>
-      <span style={{ color: 'var(--color-text-primary)', fontWeight: 700, fontSize: 14, marginRight: 4 }}>EdgeMind</span>
-      <span style={{ color: 'var(--color-border-primary)', margin: '0 6px', fontSize: 12 }}></span>
-      <span style={{ color: 'var(--color-text-tertiary)', fontSize: 11, marginRight: 20 }}> </span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginRight: 28 }}>
+        <LogoMark />
+        <span style={{
+          color: 'var(--color-danger)', fontSize: 17, fontWeight: 800, letterSpacing: '-0.01em',
+        }}>
+          EdgeMind
+        </span>
+      </div>
 
-      {/* Nav items */}
-      <nav style={{ display: 'flex', alignItems: 'stretch', height: '100%', gap: 2 }}>
-        {NAV.map(({ to, label, icon }) => (
+      {/* Nav */}
+      <nav style={{ display: 'flex', alignItems: 'stretch', height: '100%', gap: 0 }}>
+        {NAV.map(({ to, label }) => (
           <NavLink
             key={to}
             to={to}
@@ -62,28 +91,46 @@ export default function GlobalHeader() {
             style={({ isActive }) => ({
               display: 'flex',
               alignItems: 'center',
-              gap: 5,
-              padding: '0 12px',
-              color: isActive ? 'var(--color-danger)' : 'var(--color-text-secondary)',
+              padding: '0 14px',
+              color: isActive ? 'var(--color-danger)' : 'var(--color-text-primary)',
               textDecoration: 'none',
-              fontSize: 12,
-              fontWeight: isActive ? 700 : 400,
-              borderBottom: `3px solid ${isActive ? 'var(--color-danger)' : 'transparent'}`,
-              marginBottom: -3,
+              fontSize: 13,
+              fontWeight: isActive ? 600 : 400,
+              borderBottom: `4px solid ${isActive ? 'var(--color-danger)' : 'transparent'}`,
+              marginBottom: -1,
               whiteSpace: 'nowrap',
-              transition: 'color 0.1s',
+              transition: 'color 0.15s',
             })}
           >
-            <span style={{ opacity: 0.6, fontSize: 10 }}>{icon}</span>
             {label}
           </NavLink>
         ))}
       </nav>
 
       <div style={{ flex: 1 }} />
-      <UtcClock />
-      <span style={{ margin: '0 10px' }} />
-      <WsDot status={ws.status} />
+
+      {/* Right: clock · ws dot · gear · user */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <LocalClock />
+        <span
+          title={`WebSocket: ${ws.status}`}
+          className={ws.status !== 'connected' ? 'animate-blink' : ''}
+          style={{
+            width: 8, height: 8, borderRadius: '50%',
+            background: wsColor, display: 'inline-block', flexShrink: 0,
+          }}
+        />
+        {/* Gear icon */}
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-tertiary)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer' }}>
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+        {/* User icon */}
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-tertiary)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer' }}>
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      </div>
     </header>
   )
 }

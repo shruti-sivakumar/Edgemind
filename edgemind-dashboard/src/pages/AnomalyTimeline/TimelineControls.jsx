@@ -34,7 +34,12 @@ export default function TimelineControls({
       background: 'var(--color-bg-surface)', flexWrap: 'wrap',
     }}>
       {/* Title + live indicator */}
-      <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-text-primary)', marginRight: 2 }}>Anomaly Timeline</span>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, marginRight: 2, flexShrink: 0 }}>
+        <span style={{ display: 'inline-block', width: 3, height: 14, borderRadius: 2, background: 'var(--color-danger)', flexShrink: 0 }} />
+        <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.06em', color: 'var(--color-text-primary)', textTransform: 'uppercase' }}>
+          Anomaly Timeline
+        </span>
+      </span>
       <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}>
         <span className={isLive ? 'animate-blink' : ''} style={{
           width: 7, height: 7, borderRadius: '50%',

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useDispatch, useAppState } from '../../core/store/AppContext.jsx'
+import PanelHeader from '../../components/ui/PanelHeader.jsx'
 import { useFaultInjection } from '../../core/api/useFaultInjection.js'
 import { SCENARIOS } from '../../core/constants/faultModes.js'
 import ScenarioCard from './ScenarioCard.jsx'
@@ -43,7 +44,7 @@ export default function ScenarioLauncher() {
 
   return (
     <div>
-      <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 10 }}>SCENARIOS</div>
+      <PanelHeader title="Scenarios" style={{ marginBottom: 10 }} />
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
         {SCENARIOS.map(scenario => (
           <ScenarioCard

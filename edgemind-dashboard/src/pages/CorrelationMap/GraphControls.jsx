@@ -37,8 +37,11 @@ export default function GraphControls({
       borderBottom: '1px solid var(--color-border-card)',
       background: 'var(--color-bg-surface)', flexWrap: 'wrap',
     }}>
-      <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-text-primary)', flexShrink: 0 }}>
-        Dependency Graph
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, flexShrink: 0 }}>
+        <span style={{ display: 'inline-block', width: 3, height: 14, borderRadius: 2, background: 'var(--color-danger)', flexShrink: 0 }} />
+        <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.06em', color: 'var(--color-text-primary)', textTransform: 'uppercase' }}>
+          Dependency Graph
+        </span>
       </span>
 
       {/* Filters */}

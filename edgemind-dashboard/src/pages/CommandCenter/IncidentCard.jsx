@@ -1,10 +1,30 @@
-﻿import { useAppState } from '../../core/store/AppContext.jsx'
+﻿import { useNavigate } from 'react-router-dom'
+import { useAppState } from '../../core/store/AppContext.jsx'
 import ConfidenceTier from '../../components/ui/ConfidenceTier.jsx'
-import SeverityBadge from '../../components/ui/SeverityBadge.jsx'
 import AgentTag from '../../components/ui/AgentTag.jsx'
 import WarmingUpBanner from '../../components/ui/WarmingUpBanner.jsx'
 import DegradedBanner from '../../components/ui/DegradedBanner.jsx'
 import EmptyNominal from '../../components/ui/EmptyNominal.jsx'
+import PanelHeader from '../../components/ui/PanelHeader.jsx'
+
+function Panel({ children, onClick }) {
+  return (
+    <div
+      onClick={onClick}
+      title={onClick ? 'Click to open AI Investigation' : undefined}
+      style={{
+        background: 'var(--color-bg-card)',
+        border: '1.5px solid var(--color-border-card)',
+        borderRadius: 6, padding: '10px 14px',
+        display: 'flex', flexDirection: 'column', gap: 10,
+        cursor: onClick ? 'pointer' : 'default',
+      }}
+    >
+      <PanelHeader title="AI Root Cause Engine" hint="orchestrator analysis" />
+      {children}
+    </div>
+  )
+}
 
 function CausalChainInline({ chain = [] }) {
   return (
@@ -51,28 +71,25 @@ function TwoDomainContrast({ alert }) {
 }
 
 export default function IncidentCard() {
+  const navigate = useNavigate()
   const { activeIncident, agentsReady, llmAvailable } = useAppState()
 
   if (!agentsReady) return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+    <Panel>
       <WarmingUpBanner />
-    </div>
+    </Panel>
   )
 
-  if (!activeIncident) return <EmptyNominal />
+  if (!activeIncident) return (
+    <Panel>
+      <EmptyNominal message="No active incident — pipeline correlations clear" />
+    </Panel>
+  )
 
   const a = activeIncident
 
   return (
-    <div style={{
-      background: 'var(--color-bg-card)',
-      border: '1px solid var(--color-border-card)',
-      borderRadius: 6,
-      padding: '14px 16px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 10,
-    }}>
+    <Panel onClick={() => navigate('/investigate')}>
       {!llmAvailable && <DegradedBanner />}
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -128,6 +145,6 @@ export default function IncidentCard() {
           {a.bundle.unique_agents.map(ag => <AgentTag key={ag} agent={ag} />)}
         </div>
       )}
-    </div>
+    </Panel>
   )
 }

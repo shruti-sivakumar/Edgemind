@@ -52,8 +52,11 @@ export default function FindingsTable({ alert }) {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, padding: '6px 0', borderBottom: '1px solid var(--color-border-card)' }}>
-        <span>RELATED FINDINGS ({rows.length})</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid var(--color-border-card)' }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ display: 'inline-block', width: 3, height: 14, borderRadius: 2, background: 'var(--color-danger)', flexShrink: 0 }} />
+          <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', color: 'var(--color-text-primary)', textTransform: 'uppercase' }}>Related Findings ({rows.length})</span>
+        </span>
         <span style={{ flex: 1 }} />
         <select value={agentFilter} onChange={e => setAgentFilter(e.target.value)} style={{ fontSize: 10, background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border-primary)', borderRadius: 4 }}>
           <option value="all">all agents</option>

@@ -1,6 +1,7 @@
 ﻿import { useAppState } from '../../core/store/AppContext.jsx'
 import SeverityBadge from '../../components/ui/SeverityBadge.jsx'
 import AgentTag from '../../components/ui/AgentTag.jsx'
+import PanelHeader from '../../components/ui/PanelHeader.jsx'
 
 function fmtTs(isoStr) {
   if (!isoStr) return ''
@@ -15,7 +16,7 @@ export default function AppAlertsFeed({ compact = false }) {
   return (
     <div style={{ display: 'flex', flexDirection: compact ? 'row' : 'column', height: compact ? 'auto' : '100%', overflow: 'hidden', gap: compact ? 16 : 0 }}>
       <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--color-border-card)' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', marginBottom: 2 }}>PUMP ALERTS</div>
+        <PanelHeader title="Pump Alerts" style={{ marginBottom: 2 }} />
         {recentPump.length === 0 && <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>None active</div>}
         {recentPump.map((a, i) => (
           <div key={i} style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 11, padding: '3px 0', borderBottom: '1px solid var(--color-border-card)' }}>
@@ -27,7 +28,7 @@ export default function AppAlertsFeed({ compact = false }) {
       </div>
 
       <div style={{ padding: '8px 12px', flex: 1, overflowY: compact ? 'visible' : 'auto' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-tertiary)', marginBottom: 4 }}>EDGEMIND FINDINGS</div>
+        <PanelHeader title="EdgeMind Findings" style={{ marginBottom: 4 }} />
         {recentFindings.length === 0 && <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>No findings</div>}
         {recentFindings.map((f, i) => (
           <div key={i} style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 11, padding: '3px 0', borderBottom: '1px solid var(--color-border-card)' }}>

@@ -1,5 +1,6 @@
 ﻿import CommonInfraPanel from './CommonInfraPanel.jsx'
 import AppSpecificPanel from './AppSpecificPanel/index.jsx'
+import PanelHeader from '../../components/ui/PanelHeader.jsx'
 import { POD_ROLES, POD_NAMESPACES, INFO_ONLY_PODS } from '../../core/constants/pods.js'
 import { useAppState } from '../../core/store/AppContext.jsx'
 import SeverityBadge from '../../components/ui/SeverityBadge.jsx'
@@ -41,13 +42,13 @@ export default function PodDetailView({ podName, onBack }) {
             width: 340, flexShrink: 0, borderRight: '1px solid var(--color-border-card)',
             padding: 16, overflowY: 'auto',
           }}>
-            <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 10 }}>INFRASTRUCTURE METRICS</div>
+            <PanelHeader title="Infrastructure Metrics" style={{ marginBottom: 10 }} />
             <CommonInfraPanel podName={podName} />
           </div>
         )}
 
         <div style={{ flex: 1, padding: 16, overflowY: 'auto' }}>
-          <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 10 }}>APP-SPECIFIC</div>
+          <PanelHeader title="App-Specific" style={{ marginBottom: 10 }} />
           <AppSpecificPanel podName={podName} />
         </div>
       </div>

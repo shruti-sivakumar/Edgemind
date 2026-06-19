@@ -1,4 +1,5 @@
 ﻿import { useAppState } from '../../core/store/AppContext.jsx'
+import PanelHeader from '../../components/ui/PanelHeader.jsx'
 
 export default function PodEventLog({ podName }) {
   const { podEvents } = useAppState()
@@ -14,7 +15,7 @@ export default function PodEventLog({ podName }) {
 
   return (
     <div>
-      <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 6 }}>POD EVENTS</div>
+      <PanelHeader title="Pod Events" style={{ marginBottom: 6 }} />
       {events.map((e, i) => (
         <div key={i} style={{ fontSize: 11, padding: '3px 0', borderBottom: '1px solid var(--color-border-card)' }}>
           <span style={{ color: e.type === 'Warning' ? 'var(--color-warning)' : 'var(--color-text-tertiary)', marginRight: 6 }}>{e.type}</span>

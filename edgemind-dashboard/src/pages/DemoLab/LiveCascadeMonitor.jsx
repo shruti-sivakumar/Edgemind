@@ -1,5 +1,6 @@
 ﻿import { useMemo } from 'react'
 import { useAppState } from '../../core/store/AppContext.jsx'
+import PanelHeader from '../../components/ui/PanelHeader.jsx'
 import { SCENARIOS } from '../../core/constants/faultModes.js'
 import SeverityBadge from '../../components/ui/SeverityBadge.jsx'
 import AgentTag from '../../components/ui/AgentTag.jsx'
@@ -195,7 +196,10 @@ export default function LiveCascadeMonitor() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700 }}>LIVE CASCADE EFFECT</div>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <span style={{ display: 'inline-block', width: 3, height: 14, borderRadius: 2, background: 'var(--color-danger)', flexShrink: 0 }} />
+          <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', color: 'var(--color-text-primary)', textTransform: 'uppercase' }}>Live Cascade Effect</span>
+        </span>
         {elapsed && (
           <div style={{ fontSize: 11, color: 'var(--color-warning)', fontVariantNumeric: 'tabular-nums' }}>
             Elapsed: {elapsed}
@@ -218,9 +222,7 @@ export default function LiveCascadeMonitor() {
       {/* ── Parameter Trends ──────────────────────────────────────────── */}
       {activePump && (
         <div style={{ background: 'var(--color-bg-surface)', borderRadius: 6, padding: 12 }}>
-          <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 10 }}>
-            PARAMETER TRENDS — {activeSensor || activePump}
-          </div>
+          <PanelHeader title={`Parameter Trends — ${activeSensor || activePump}`} style={{ marginBottom: 10 }} />
           {SENSOR_PARAMS.map(p => (
             <SensorTrendBar key={p.key} param={p} value={sensorData[p.key]} />
           ))}
@@ -244,9 +246,7 @@ export default function LiveCascadeMonitor() {
       {/* ── Health Scorer Output ──────────────────────────────────────── */}
       {Object.keys(pumpHealthMap).length > 0 && (
         <div style={{ background: 'var(--color-bg-surface)', borderRadius: 6, padding: 12 }}>
-          <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 8 }}>
-            HEALTH SCORER OUTPUT
-          </div>
+          <PanelHeader title="Health Scorer Output" style={{ marginBottom: 8 }} />
           {Object.entries(pumpHealthMap).map(([pid, a]) => {
             const sev = a.severity || (
               (a.overall_health ?? 100) < 50 ? 'critical' :
@@ -269,9 +269,7 @@ export default function LiveCascadeMonitor() {
       {/* ── EdgeMind Findings since injection ────────────────────────── */}
       {recentFindings.length > 0 && (
         <div style={{ background: 'var(--color-bg-surface)', borderRadius: 6, padding: 12 }}>
-          <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 8 }}>
-            EDGEMIND FINDINGS {startedAt ? 'SINCE INJECTION' : '(LAST 20)'}
-          </div>
+          <PanelHeader title={`EdgeMind Findings ${startedAt ? 'Since Injection' : '(Last 20)'}`} style={{ marginBottom: 8 }} />
           {recentFindings.slice(0, 10).map((f, i) => {
             const color =
               f.severity === 'critical' ? 'var(--color-danger)' :
@@ -294,9 +292,7 @@ export default function LiveCascadeMonitor() {
 
       {/* ── Correlated Alert ─────────────────────────────────────────── */}
       <div style={{ background: 'var(--color-bg-surface)', borderRadius: 6, padding: 12 }}>
-        <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 8 }}>
-          CORRELATED ALERT
-        </div>
+        <PanelHeader title="Correlated Alert" style={{ marginBottom: 8 }} />
         {!scenarioAlert ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-text-tertiary)', fontSize: 12 }}>
             <span style={{ fontSize: 16 }}>⏳</span>
@@ -337,9 +333,7 @@ export default function LiveCascadeMonitor() {
 
       {/* ── Detection Scoreboard ─────────────────────────────────────── */}
       <div style={{ background: 'var(--color-bg-surface)', borderRadius: 6, padding: 12 }}>
-        <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 10 }}>
-          DETECTION SCOREBOARD
-        </div>
+        <PanelHeader title="Detection Scoreboard" style={{ marginBottom: 10 }} />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px 20px', marginBottom: 10 }}>
           <CheckRow label="Root cause found?"         checked={scoreboard.rootCauseFound} />
           <CheckRow label="Correct root cause pod?"   checked={scoreboard.correctRootCausePod} />

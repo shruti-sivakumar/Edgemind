@@ -5,6 +5,7 @@ import { UPSTREAM, DOWNSTREAM } from '../../core/constants/topology.js'
 import MetricTabs from '../../components/charts/MetricTabs.jsx'
 import SeverityBadge from '../../components/ui/SeverityBadge.jsx'
 import AgentTag from '../../components/ui/AgentTag.jsx'
+import PanelHeader from '../../components/ui/PanelHeader.jsx'
 
 const PUMP_DOMAIN_PODS = new Set(['health-scorer', 'feature-extractor', 'alert-manager'])
 
@@ -73,7 +74,7 @@ export default function NodeDetailDrawer({ podName, onClose }) {
         {/* Active findings */}
         {podFindings.length > 0 && (
           <div>
-            <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 6 }}>ACTIVE FINDINGS</div>
+            <PanelHeader title="Active Findings" style={{ marginBottom: 6 }} />
             {podFindings.map((f, i) => (
               <div key={i} style={{ padding: '5px 0', borderBottom: '1px solid var(--color-border-card)' }}>
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 11 }}>
@@ -95,9 +96,7 @@ export default function NodeDetailDrawer({ podName, onClose }) {
         {/* Bearing / pump health (only for pump-domain pods) */}
         {latestPumpAlert && (
           <div>
-            <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 6 }}>
-              PUMP HEALTH · {latestPumpAlert.pump_id?.toUpperCase()}
-            </div>
+            <PanelHeader title={`Pump Health · ${latestPumpAlert.pump_id?.toUpperCase()}`} style={{ marginBottom: 6 }} />
             <MiniGaugeBar
               label="Overall health"
               value={latestPumpAlert.overall_health}
@@ -117,14 +116,14 @@ export default function NodeDetailDrawer({ podName, onClose }) {
 
         {/* Metrics */}
         <div>
-          <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 4 }}>METRICS</div>
+          <PanelHeader title="Metrics" style={{ marginBottom: 4 }} />
           <MetricTabs podName={podName} />
         </div>
 
         {/* Topology */}
         {(upstream.length > 0 || downstream.length > 0) && (
           <div>
-            <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 6 }}>TOPOLOGY</div>
+            <PanelHeader title="Topology" style={{ marginBottom: 6 }} />
             {upstream.length > 0 && (
               <div style={{ marginBottom: 4 }}>
                 <span style={{ fontSize: 10, color: 'var(--color-text-tertiary)' }}>Upstream: </span>

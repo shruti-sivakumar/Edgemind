@@ -1,5 +1,6 @@
 import ConfidenceTier from '../../components/ui/ConfidenceTier.jsx'
 import DegradedBanner from '../../components/ui/DegradedBanner.jsx'
+import PanelHeader from '../../components/ui/PanelHeader.jsx'
 import WarmingUpBanner from '../../components/ui/WarmingUpBanner.jsx'
 import EmptyNominal from '../../components/ui/EmptyNominal.jsx'
 import CausalChainSteps from './CausalChainSteps.jsx'
@@ -36,7 +37,7 @@ export default function AIExplanationCard({ alert }) {
 
       {alert.causal_chain?.length > 0 && (
         <div>
-          <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 6 }}>CAUSAL CHAIN</div>
+          <PanelHeader title="Causal Chain" style={{ marginBottom: 6 }} />
           <CausalChainSteps chain={alert.causal_chain} />
         </div>
       )}

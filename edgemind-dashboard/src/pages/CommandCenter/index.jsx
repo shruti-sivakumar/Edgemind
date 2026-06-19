@@ -1,72 +1,69 @@
-﻿import { useNavigate } from 'react-router-dom'
-import StatusStrip from '../../components/layout/StatusStrip.jsx'
+import { useNavigate } from 'react-router-dom'
 import PipelineGraph from '../../components/graph/PipelineGraph.jsx'
-import VitalCards from './VitalCards.jsx'
+import KpiStrip from './KpiStrip.jsx'
+import DigitalTwinMatrix from './DigitalTwinMatrix.jsx'
 import IncidentCard from './IncidentCard.jsx'
-import TopRiskyPods from './TopRiskyPods.jsx'
-import ForecastStrip from './ForecastStrip.jsx'
-import RecentAlertsStrip from './RecentAlertsStrip.jsx'
+import AgentGrid from './AgentGrid.jsx'
+import InfraMonitor from './InfraMonitor.jsx'
+import LiveEventFeed from './LiveEventFeed.jsx'
+import PanelHeader from '../../components/ui/PanelHeader.jsx'
+
+// Command Center — the prototype's main dashboard, laid out in five bands:
+//   0  Live ops header (identity + connectivity)
+//   1  KPI strip (six live system KPIs)
+//   2  Asset twins | dependency graph | AI root cause
+//   3  Agent grid | infrastructure monitoring
+//   4  Live event feed
+// Each panel is a summary; clicking opens the relevant detail sub-page.
 
 export default function CommandCenter() {
   const navigate = useNavigate()
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 1400 }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>Command Center</h1>
-        <StatusStrip />
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 1480 }}>
+      {/* Band 1 */}
+      <KpiStrip />
 
-      {/* Row 1 — Vital-sign floater cards */}
-      <VitalCards />
-
-      {/* Row 2 — Left panel | Dependency graph (center) | Right panel */}
-      <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-
-        {/* Left: incident + pump alerts */}
-        <div style={{ flex: '0 0 260px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <IncidentCard />
-          <RecentAlertsStrip />
+      {/* Band 2 — twins | graph | root cause */}
+      <div style={{ display: 'flex', gap: 12, alignItems: 'stretch' }}>
+        <div style={{ flex: '0 0 248px', minWidth: 0 }}>
+          <DigitalTwinMatrix />
         </div>
 
-        {/* Center: dependency graph — main focus */}
         <div
           style={{
-            flex: 1,
+            flex: 1, minWidth: 0,
             background: 'var(--color-bg-card)',
-            border: '1px solid var(--color-border-card)',
-            borderRadius: 6,
-            padding: '10px 12px',
-            overflow: 'hidden',
-            cursor: 'pointer',
+            border: '1.5px solid var(--color-border-card)',
+            borderRadius: 6, padding: '10px 12px',
+            overflow: 'hidden', cursor: 'pointer',
           }}
           onClick={() => navigate('/graph')}
           title="Click to open full Correlation Map"
         >
-          <div style={{
-            fontSize: 10, color: 'var(--color-text-tertiary)',
-            fontWeight: 700, marginBottom: 8, letterSpacing: '0.06em',
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          }}>
-            <span>DEPENDENCY GRAPH</span>
-            <span style={{ color: 'var(--color-info)', fontWeight: 400, fontSize: 10 }}>
-              click to expand →
-            </span>
-          </div>
-          <div style={{ overflowX: 'auto', pointerEvents: 'none' }}>
+          <PanelHeader title="Anomaly Propagation Graph" hint="click to expand →" />
+          <div style={{ overflowX: 'auto', pointerEvents: 'none', marginTop: 8 }}>
             <PipelineGraph />
           </div>
         </div>
 
-        {/* Right: top risky pods */}
-        <div style={{ flex: '0 0 230px' }}>
-          <TopRiskyPods />
+        <div style={{ flex: '0 0 300px', minWidth: 0 }}>
+          <IncidentCard />
         </div>
       </div>
 
-      {/* Row 3 — Forecast strip (full width) */}
-      <ForecastStrip />
+      {/* Band 3 — agents | infrastructure */}
+      <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+        <div style={{ flex: '1 1 0', minWidth: 0 }}>
+          <AgentGrid />
+        </div>
+        <div style={{ flex: '1 1 0', minWidth: 0 }}>
+          <InfraMonitor />
+        </div>
+      </div>
+
+      {/* Band 4 — live event feed */}
+      <LiveEventFeed />
     </div>
   )
 }

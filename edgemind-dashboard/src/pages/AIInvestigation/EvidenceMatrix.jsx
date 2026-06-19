@@ -1,5 +1,6 @@
 import { useAppState } from '../../core/store/AppContext.jsx'
 import AgentTag from '../../components/ui/AgentTag.jsx'
+import PanelHeader from '../../components/ui/PanelHeader.jsx'
 import SeverityBadge from '../../components/ui/SeverityBadge.jsx'
 import ConfidenceTier from '../../components/ui/ConfidenceTier.jsx'
 
@@ -19,7 +20,7 @@ export default function EvidenceMatrix({ alert }) {
 
   return (
     <div style={{ marginTop: 10 }}>
-      <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 8 }}>EVIDENCE MATRIX</div>
+      <PanelHeader title="Evidence Matrix" style={{ marginBottom: 8 }} />
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
         {rows.map(({ agent, findings: aFindings }) => (
           <div key={agent} style={{ background: 'var(--color-bg-surface)', borderRadius: 6, padding: '8px 10px' }}>
