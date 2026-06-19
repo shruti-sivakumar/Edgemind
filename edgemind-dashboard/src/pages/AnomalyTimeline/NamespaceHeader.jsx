@@ -10,7 +10,7 @@
         cursor: 'pointer', userSelect: 'none',
       }}
     >
-      <span style={{ fontSize: 10, color: 'var(--color-text-tertiary)' }}>{collapsed ? 'â–¶' : 'â–¼'}</span>
+      <span style={{ fontSize: 10, color: 'var(--color-text-tertiary)' }}>{collapsed ? '▶' : '▼'}</span>
       <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-secondary)' }}>{ns}</span>
       <span style={{ fontSize: 10, color: 'var(--color-text-tertiary)' }}>{podCount} pod{podCount !== 1 ? 's' : ''}</span>
     </div>

@@ -96,7 +96,7 @@ export default function HistoryPanel({ typeFilter = 'all', nsFilter = '', window
       display: 'flex', alignItems: 'center', gap: 6,
       fontSize: 11, color: 'var(--color-text-tertiary)',
     }}>
-      <span style={{ color: 'var(--color-success)', fontSize: 12 }}>âœ“</span>
+      <span style={{ color: 'var(--color-success)', fontSize: 12 }}>✓</span>
       No events in this window
     </div>
   )
@@ -110,7 +110,7 @@ export default function HistoryPanel({ typeFilter = 'all', nsFilter = '', window
           onClick={() => exportCsv(sorted)}
           style={{ fontSize: 11, padding: '2px 10px', borderRadius: 4, cursor: 'pointer', background: 'transparent', color: 'var(--color-info)', border: '1px solid var(--color-info)' }}
         >
-          â†“ Export CSV
+          ↓ Export CSV
         </button>
       </div>
 

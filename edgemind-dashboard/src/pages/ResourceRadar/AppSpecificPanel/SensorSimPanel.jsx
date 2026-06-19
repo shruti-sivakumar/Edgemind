@@ -40,12 +40,12 @@ export default function SensorSimPanel({ podName }) {
           <IsoZoneBadge mmPerS={readings.vibration_axial} />
         </span>
       </div>
-      <ReadingRow label="Temperature" value={readings.temperature} unit="Â°C" warn={readings.temperature > 80} />
+      <ReadingRow label="Temperature" value={readings.temperature} unit="°C" warn={readings.temperature > 80} />
       <ReadingRow label="RPM"         value={readings.rpm}         unit="rpm" />
 
       {readings.emission_hz && (
         <div style={{ fontSize: 11, color: readings.emission_hz >= 10 ? 'var(--color-danger)' : 'var(--color-success)' }}>
-          Emission rate: {readings.emission_hz} Hz {readings.emission_hz >= 10 ? 'âš¡ FLOOD' : 'âœ“ normal'}
+          Emission rate: {readings.emission_hz} Hz {readings.emission_hz >= 10 ? '⚡ FLOOD' : '✓ normal'}
         </div>
       )}
 
@@ -90,7 +90,7 @@ export default function SensorSimPanel({ podName }) {
               opacity: loading || activeFault ? 0.5 : 1,
             }}
           >
-            â–¶ Inject
+            ▶ Inject
           </button>
           <button
             onClick={clear}

@@ -72,7 +72,7 @@ export default function SensorSimControl({ pumpId }) {
               fontSize: 9, padding: '1px 5px', borderRadius: 8,
               background: 'var(--color-danger-tint)', color: 'var(--color-danger)',
               border: '1px solid var(--color-danger-border)',
-            }}>âš¡ FLOOD</span>
+            }}>⚡ FLOOD</span>
           )}
         </div>
       </div>
@@ -82,7 +82,7 @@ export default function SensorSimControl({ pumpId }) {
         <div style={{ fontSize: 9, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 4 }}>CURRENT READINGS</div>
         <ReadingRow label="Vib Axial"  value={readings.vibration_axial}    unit="mm/s" warn={1.5} crit={3.0} />
         <ReadingRow label="Vib Radial" value={readings.vibration_radial}   unit="mm/s" warn={2.0} crit={4.0} />
-        <ReadingRow label="Temp"       value={readings.temperature}        unit="Â°C"   warn={55}  crit={65} />
+        <ReadingRow label="Temp"       value={readings.temperature}        unit="°C"   warn={55}  crit={65} />
         <ReadingRow label="RPM"        value={readings.rpm}                unit="rpm"  warn={1200} crit={900} flip />
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, padding: '2px 0', marginTop: 2, borderTop: '1px solid var(--color-border-card)' }}>
           <span style={{ color: 'var(--color-text-tertiary)' }}>Emission rate</span>
@@ -91,7 +91,7 @@ export default function SensorSimControl({ pumpId }) {
             color: isFlooding ? 'var(--color-danger)' : 'var(--color-success)',
           }}>
             {emissionHz != null ? `${emissionHz} Hz` : '—'}
-            {isFlooding ? ' âš¡' : ''}
+            {isFlooding ? ' ⚡' : ''}
           </span>
         </div>
       </div>
@@ -131,7 +131,7 @@ export default function SensorSimControl({ pumpId }) {
             background: 'var(--color-danger)', color: '#fff', border: 'none', fontSize: 11, fontWeight: 700,
             opacity: loading || activeFault ? 0.5 : 1,
           }}
-        >â–¶ Inject</button>
+        >▶ Inject</button>
 
         <button
           onClick={clear}
@@ -142,7 +142,7 @@ export default function SensorSimControl({ pumpId }) {
             border: '1px solid var(--color-border-primary)', fontSize: 11,
             opacity: loading || !activeFault ? 0.5 : 1,
           }}
-        >âœ• Clear</button>
+        >✕ Clear</button>
       </div>
     </div>
   )

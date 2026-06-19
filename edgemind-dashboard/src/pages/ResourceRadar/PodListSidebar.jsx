@@ -36,7 +36,7 @@ export default function PodListSidebar({ selectedPod, onSelectPod, nsFilter = 'a
             }}
           >
             <span>{ns.toUpperCase()}</span>
-            <span>{open[ns] ? 'â–¾' : 'â–¸'}</span>
+            <span>{open[ns] ? '▾' : '▸'}</span>
           </div>
           {open[ns] && pods.map(pod => (
             <PodListItem

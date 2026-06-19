@@ -19,7 +19,7 @@ export default function PodDetailView({ podName, onBack }) {
           onClick={onBack}
           style={{ background: 'transparent', border: 'none', color: 'var(--color-text-secondary)', cursor: 'pointer', fontSize: 13, padding: '2px 4px' }}
         >
-          â† Back
+          ← Back
         </button>
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

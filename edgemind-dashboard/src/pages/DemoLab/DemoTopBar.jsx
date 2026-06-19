@@ -26,7 +26,7 @@ export default function DemoTopBar() {
     : anyActive ? 'var(--color-warning)'
     : 'var(--color-success)'
 
-  const statusIcon = isCritical ? 'âš¡' : anyActive ? 'âš ' : 'âœ“'
+  const statusIcon = isCritical ? '⚡' : anyActive ? '⚠' : '✓'
 
   const statusLabel = isCritical ? 'CRITICAL'
     : anyActive ? `${activeFaultCount} Active Fault${activeFaultCount > 1 ? 's' : ''}`
@@ -88,7 +88,7 @@ export default function DemoTopBar() {
             background: 'transparent', color: 'var(--color-danger)', border: '1px solid var(--color-danger)',
           }}
         >
-          âœ• Clear All Faults
+          ✕ Clear All Faults
         </button>
       )}
       {confirming && (

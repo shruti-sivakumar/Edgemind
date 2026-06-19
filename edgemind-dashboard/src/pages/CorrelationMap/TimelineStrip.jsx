@@ -40,7 +40,7 @@ export default function TimelineStrip() {
       onClick={() => navigate('/timeline')}
       title="Click to open Anomaly Timeline"
     >
-      <span style={{ fontSize: 10, color: 'var(--color-text-tertiary)', flexShrink: 0 }}>âˆ’10 min</span>
+      <span style={{ fontSize: 10, color: 'var(--color-text-tertiary)', flexShrink: 0 }}>−10 min</span>
 
       <div style={{ flex: 1, height: 36, position: 'relative' }}>
         {/* Incident brackets */}

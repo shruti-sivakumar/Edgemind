@@ -34,7 +34,7 @@ export default function AlertBracketPopover({ alert: a, onClose }) {
           {a.alert_type || 'Correlated Alert'}
         </span>
         <ConfidenceTier value={a.confidence} />
-        <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--color-text-secondary)', cursor: 'pointer', fontSize: 16, lineHeight: 1 }}>Ã—</button>
+        <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--color-text-secondary)', cursor: 'pointer', fontSize: 16, lineHeight: 1 }}>×</button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '130px 1fr', gap: 4, fontSize: 11, marginBottom: 10 }}>

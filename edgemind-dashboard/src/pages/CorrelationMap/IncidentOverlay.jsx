@@ -49,7 +49,7 @@ export default function IncidentOverlay() {
         background: 'var(--color-danger-tint)',
         borderBottom: '1px solid var(--color-border-card)',
       }}>
-        <span style={{ fontSize: 11, color: 'var(--color-danger)', fontWeight: 700 }}>âš‘ ACTIVE INCIDENT</span>
+        <span style={{ fontSize: 11, color: 'var(--color-danger)', fontWeight: 700 }}>⚑ ACTIVE INCIDENT</span>
         {alert_type && (
           <span style={{
             fontSize: 9, padding: '1px 5px', borderRadius: 3,
@@ -60,7 +60,7 @@ export default function IncidentOverlay() {
         <button
           onClick={() => setDismissed(true)}
           style={{ marginLeft: 'auto', background: 'transparent', border: 'none', color: 'var(--color-text-tertiary)', cursor: 'pointer', fontSize: 13, lineHeight: 1 }}
-        >âœ•</button>
+        >✕</button>
       </div>
 
       <div style={{ padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -93,14 +93,14 @@ export default function IncidentOverlay() {
             fontSize: 10, color: 'var(--color-text-secondary)', lineHeight: 1.5,
             borderLeft: '2px solid var(--color-info)', paddingLeft: 8,
           }}>
-            {insight.length > 140 ? insight.slice(0, 137) + 'â€¦' : insight}
+            {insight.length > 140 ? insight.slice(0, 137) + '…' : insight}
           </div>
         )}
 
         {/* Recommendation */}
         {recommendation && (
           <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontStyle: 'italic' }}>
-            {recommendation.length > 100 ? recommendation.slice(0, 97) + 'â€¦' : recommendation}
+            {recommendation.length > 100 ? recommendation.slice(0, 97) + '…' : recommendation}
           </div>
         )}
 

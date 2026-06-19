@@ -84,7 +84,7 @@ export default function PodCard({ podName, onClick }) {
         )}
         {isFlood && (
           <span style={{ fontSize: 9, padding: '1px 5px', borderRadius: 8, background: 'var(--color-danger-tint)', color: 'var(--color-danger)' }}>
-            âš¡ FLOOD
+            ⚡ FLOOD
           </span>
         )}
       </div>
@@ -102,7 +102,7 @@ export default function PodCard({ podName, onClick }) {
           }
           {fmtTx(tx) && (
             <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)' }}>
-              NET TX â†‘ {fmtTx(tx)}
+              NET TX ↑ {fmtTx(tx)}
             </div>
           )}
           <div style={{ fontSize: 10, color: restarts > 0 ? 'var(--color-warning)' : 'var(--color-text-tertiary)' }}>

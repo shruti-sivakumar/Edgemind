@@ -6,8 +6,8 @@ const NAV = [
   { to: '/radar',       label: 'Resource Radar', icon: '◈' },
   { to: '/graph',       label: 'Dependency Graph', icon: '⬡' },
   { to: '/timeline',    label: 'Anomaly Timeline', icon: '▬' },
-  { to: '/investigate', label: 'AI Investigation', icon: 'â—Ž' },
-  { to: '/demo',        label: 'Demo Lab', icon: 'âš¡' },
+  { to: '/investigate', label: 'AI Investigation', icon: '◎' },
+  { to: '/demo',        label: 'Demo Lab', icon: '⚡' },
 ]
 
 export default function Sidebar() {

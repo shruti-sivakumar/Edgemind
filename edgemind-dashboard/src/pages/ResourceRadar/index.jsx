@@ -55,7 +55,7 @@ export default function ResourceRadar() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
 
-      {/* â”€â”€ Top bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Top bar ─────────────────────────────────────────────────── */}
       <div style={{
         padding: '7px 16px', borderBottom: '1px solid var(--color-border-card)',
         display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0,
@@ -85,9 +85,9 @@ export default function ResourceRadar() {
 
         {/* Health counts + last-updated */}
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 14, alignItems: 'center', fontSize: 11 }}>
-          <span style={{ color: 'var(--color-success)' }}>âœ“ {healthCounts.running} Running</span>
-          <span style={{ color: 'var(--color-warning)' }}>âš  {healthCounts.warning} Warning</span>
-          <span style={{ color: 'var(--color-danger)' }}>âœ— {healthCounts.critical} Critical</span>
+          <span style={{ color: 'var(--color-success)' }}>✓ {healthCounts.running} Running</span>
+          <span style={{ color: 'var(--color-warning)' }}>⚠ {healthCounts.warning} Warning</span>
+          <span style={{ color: 'var(--color-danger)' }}>✗ {healthCounts.critical} Critical</span>
           {secsAgo != null && (
             <span style={{ color: 'var(--color-text-tertiary)' }}>
               Updated {secsAgo}s ago
@@ -96,7 +96,7 @@ export default function ResourceRadar() {
         </div>
       </div>
 
-      {/* â”€â”€ Body â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Body ────────────────────────────────────────────────────── */}
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         <PodListSidebar
           selectedPod={selectedPod}

@@ -13,7 +13,7 @@ const WATCH_PODS = [
 const SENSOR_PARAMS = [
   { key: 'vibration_axial',      label: 'Vib Axial',  unit: 'mm/s', baseline: 0.5,  warn: 1.5,  crit: 3.0,  max: 6.0  },
   { key: 'vibration_radial',     label: 'Vib Radial', unit: 'mm/s', baseline: 0.5,  warn: 2.0,  crit: 4.0,  max: 8.0  },
-  { key: 'temperature',          label: 'Temperature', unit: 'Â°C',  baseline: 35.0, warn: 50.0, crit: 60.0, max: 80.0 },
+  { key: 'temperature',          label: 'Temperature', unit: '°C',  baseline: 35.0, warn: 50.0, crit: 60.0, max: 80.0 },
   { key: 'rpm',                  label: 'RPM',         unit: 'rpm', baseline: 1450, warn: 1200, crit: 900,  max: 1800 },
 ]
 
@@ -96,7 +96,7 @@ function CheckRow({ label, checked }) {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontSize: 10, color: '#fff', fontWeight: 900,
       }}>
-        {checked ? 'âœ“' : ''}
+        {checked ? '✓' : ''}
       </span>
       <span style={{ color: checked ? 'var(--color-text-primary)' : 'var(--color-text-tertiary)' }}>
         {label}
@@ -178,11 +178,11 @@ export default function LiveCascadeMonitor() {
   const anyActiveFault = Object.values(demoLab.activeFaults || {}).some(Boolean)
   const elapsed = fmtElapsed(startedAt)
 
-  // â”€â”€ Idle state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Idle state ────────────────────────────────────────────────────────
   if (!activeScenario && !anyActiveFault) {
     return (
       <div style={{ background: 'var(--color-bg-card)', borderRadius: 8, padding: 24, textAlign: 'center', border: '1px solid var(--color-border-card)' }}>
-        <div style={{ fontSize: 28, marginBottom: 8, color: 'var(--color-success)' }}>âœ“</div>
+        <div style={{ fontSize: 28, marginBottom: 8, color: 'var(--color-success)' }}>✓</div>
         <div style={{ fontWeight: 700, color: 'var(--color-success)', fontSize: 14, marginBottom: 6 }}>System Nominal</div>
         <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>
           All pumps operating at baseline. Select a scenario above to begin demo.
@@ -203,7 +203,7 @@ export default function LiveCascadeMonitor() {
         )}
       </div>
 
-      {/* â”€â”€ Pipeline node row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Pipeline node row ─────────────────────────────────────────── */}
       <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
         {WATCH_PODS.map((pod, i) => (
           <div key={pod} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -215,7 +215,7 @@ export default function LiveCascadeMonitor() {
         ))}
       </div>
 
-      {/* â”€â”€ Parameter Trends â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Parameter Trends ──────────────────────────────────────────── */}
       {activePump && (
         <div style={{ background: 'var(--color-bg-surface)', borderRadius: 6, padding: 12 }}>
           <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 10 }}>
@@ -228,7 +228,7 @@ export default function LiveCascadeMonitor() {
             {sensorData.emission_hz != null && (
               <span style={{ color: sensorData.emission_hz > 2 ? 'var(--color-danger)' : 'var(--color-text-tertiary)' }}>
                 Emission: {sensorData.emission_hz} Hz
-                {sensorData.emission_hz > 2 ? ' âš¡ FLOOD' : ' â— normal'}
+                {sensorData.emission_hz > 2 ? ' ⚡ FLOOD' : ' ● normal'}
               </span>
             )}
             {sensorData.active_fault && (
@@ -241,7 +241,7 @@ export default function LiveCascadeMonitor() {
         </div>
       )}
 
-      {/* â”€â”€ Health Scorer Output â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Health Scorer Output ──────────────────────────────────────── */}
       {Object.keys(pumpHealthMap).length > 0 && (
         <div style={{ background: 'var(--color-bg-surface)', borderRadius: 6, padding: 12 }}>
           <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 8 }}>
@@ -266,7 +266,7 @@ export default function LiveCascadeMonitor() {
         </div>
       )}
 
-      {/* â”€â”€ EdgeMind Findings since injection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── EdgeMind Findings since injection ────────────────────────── */}
       {recentFindings.length > 0 && (
         <div style={{ background: 'var(--color-bg-surface)', borderRadius: 6, padding: 12 }}>
           <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 8 }}>
@@ -292,15 +292,15 @@ export default function LiveCascadeMonitor() {
         </div>
       )}
 
-      {/* â”€â”€ Correlated Alert â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Correlated Alert ─────────────────────────────────────────── */}
       <div style={{ background: 'var(--color-bg-surface)', borderRadius: 6, padding: 12 }}>
         <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 8 }}>
           CORRELATED ALERT
         </div>
         {!scenarioAlert ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-text-tertiary)', fontSize: 12 }}>
-            <span style={{ fontSize: 16 }}>â³</span>
-            <span>Waiting for orchestrator analysisâ€¦</span>
+            <span style={{ fontSize: 16 }}>⏳</span>
+            <span>Waiting for orchestrator analysis…</span>
           </div>
         ) : (
           <div>
@@ -335,7 +335,7 @@ export default function LiveCascadeMonitor() {
         )}
       </div>
 
-      {/* â”€â”€ Detection Scoreboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Detection Scoreboard ─────────────────────────────────────── */}
       <div style={{ background: 'var(--color-bg-surface)', borderRadius: 6, padding: 12 }}>
         <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 10 }}>
           DETECTION SCOREBOARD
@@ -346,7 +346,7 @@ export default function LiveCascadeMonitor() {
           <CheckRow label="Multi-agent correlation?"  checked={scoreboard.multiAgentCorr} />
           <CheckRow label="Indirect dependency shown?" checked={scoreboard.indirectDependency} />
           <CheckRow label="Causal chain complete?"    checked={scoreboard.causalChainComplete} />
-          <CheckRow label="Confidence tier â‰¥ 0.7?"   checked={scoreboard.confidenceHigh} />
+          <CheckRow label="Confidence tier ≥ 0.7?"   checked={scoreboard.confidenceHigh} />
         </div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {scoreboard.agentsFired.length > 0

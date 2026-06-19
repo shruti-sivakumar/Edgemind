@@ -54,7 +54,7 @@ export default function NodeDetailDrawer({ podName, onClose }) {
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-primary)' }}>{podName}</div>
           <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', marginTop: 1 }}>
-            {ns} · {role.slice(0, 50)}{role.length > 50 ? 'â€¦' : ''}
+            {ns} · {role.slice(0, 50)}{role.length > 50 ? '…' : ''}
           </div>
         </div>
         {restarts != null && restarts > 0 && (
@@ -65,7 +65,7 @@ export default function NodeDetailDrawer({ podName, onClose }) {
             {restarts} restart{restarts !== 1 ? 's' : ''}
           </span>
         )}
-        <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--color-text-secondary)', cursor: 'pointer', fontSize: 16 }}>âœ•</button>
+        <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--color-text-secondary)', cursor: 'pointer', fontSize: 16 }}>✕</button>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: 14, display: 'flex', flexDirection: 'column', gap: 14 }}>

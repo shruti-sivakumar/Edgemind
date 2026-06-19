@@ -18,7 +18,7 @@ export default function ActiveAlertsBanner() {
         style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 16px', cursor: 'pointer' }}
       >
         <span style={{ fontSize: 10, color: critCount > 0 ? 'var(--color-danger)' : 'var(--color-warning)', fontWeight: 700 }}>
-          â–² {activeAlerts.length} ACTIVE ALERT{activeAlerts.length !== 1 ? 'S' : ''}
+          ▲ {activeAlerts.length} ACTIVE ALERT{activeAlerts.length !== 1 ? 'S' : ''}
         </span>
         {critCount > 0 && <span style={{ fontSize: 10, color: 'var(--color-danger)' }}>{critCount} critical</span>}
         <span style={{ flex: 1 }} />

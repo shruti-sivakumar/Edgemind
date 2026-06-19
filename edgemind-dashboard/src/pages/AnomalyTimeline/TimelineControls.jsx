@@ -109,13 +109,13 @@ export default function TimelineControls({
           border: `1px solid ${paused ? 'var(--color-warning)' : 'var(--color-border-primary)'}`,
         }}
       >
-        {paused ? 'â–¶ Resume' : 'â¸ Pause'}
+        {paused ? '▶ Resume' : '⏸ Pause'}
       </button>
 
       {/* Pan buttons */}
       <div style={{ display: 'flex', gap: 4 }}>
         <button onClick={() => setPanOffsetMs(v => v + 5 * 60 * 1000)} style={buttonStyle(false)}>
-          â† Back 5m
+          ← Back 5m
         </button>
         <button
           onClick={() => setPanOffsetMs(v => Math.max(0, v - 5 * 60 * 1000))}

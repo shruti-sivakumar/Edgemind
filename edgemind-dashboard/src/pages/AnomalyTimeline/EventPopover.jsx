@@ -56,7 +56,7 @@ export default function EventPopover({ finding: f, onClose, xLeft }) {
         <SeverityBadge severity={f.severity} />
         <AgentTag agent={f.agent} />
         <span style={{ fontSize: 11, color: 'var(--color-text-primary)', flex: 1, fontWeight: 600 }}>{f.anomaly_type}</span>
-        <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--color-text-tertiary)', cursor: 'pointer', fontSize: 14, lineHeight: 1 }}>Ã—</button>
+        <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--color-text-tertiary)', cursor: 'pointer', fontSize: 14, lineHeight: 1 }}>×</button>
       </div>
 
       <Row label="Pod" value={f.pod} />
@@ -67,7 +67,7 @@ export default function EventPopover({ finding: f, onClose, xLeft }) {
       <Row label="Metric" value={metric} />
       <Row label="Value" value={value} />
       <Row label="Baseline" value={baseline} />
-      <Row label="Deviation" value={deviation != null ? `${deviation}Ïƒ` : null} />
+      <Row label="Deviation" value={deviation != null ? `${deviation}σ` : null} />
 
       {f.confidence != null && (
         <div style={{ padding: '5px 0' }}>
@@ -79,7 +79,7 @@ export default function EventPopover({ finding: f, onClose, xLeft }) {
         <div style={{ marginTop: 6, fontSize: 10, color: 'var(--color-text-tertiary)' }}>
           <div style={{ fontWeight: 700, marginBottom: 3 }}>EVIDENCE</div>
           {evidenceEntries.slice(0, 4).map(([k, v]) => (
-            <div key={k} style={{ marginBottom: 1 }}>â€¢ <span style={{ color: 'var(--color-text-secondary)' }}>{String(v)}</span></div>
+            <div key={k} style={{ marginBottom: 1 }}>• <span style={{ color: 'var(--color-text-secondary)' }}>{String(v)}</span></div>
           ))}
         </div>
       )}

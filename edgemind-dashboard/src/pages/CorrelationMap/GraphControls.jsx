@@ -57,9 +57,9 @@ export default function GraphControls({
 
       {/* Health counts */}
       <div style={{ display: 'flex', gap: 8, padding: '2px 8px', borderRadius: 4, background: 'var(--color-overlay)', flexShrink: 0 }}>
-        {criticalCount > 0 && chip(`â— ${criticalCount} critical`, 'var(--color-danger)')}
-        {warningCount  > 0 && chip(`â—† ${warningCount} warning`,  'var(--color-warning)')}
-        {criticalCount === 0 && warningCount === 0 && chip('âœ“ nominal', 'var(--color-success)')}
+        {criticalCount > 0 && chip(`● ${criticalCount} critical`, 'var(--color-danger)')}
+        {warningCount  > 0 && chip(`◆ ${warningCount} warning`,  'var(--color-warning)')}
+        {criticalCount === 0 && warningCount === 0 && chip('✓ nominal', 'var(--color-success)')}
       </div>
 
       {/* Zoom controls */}
@@ -67,7 +67,7 @@ export default function GraphControls({
         <button onClick={() => onScaleChange(s => Math.min(2.0, parseFloat((s + 0.15).toFixed(2))))}
           style={zoomBtn}>+</button>
         <button onClick={() => onScaleChange(s => Math.max(0.4, parseFloat((s - 0.15).toFixed(2))))}
-          style={zoomBtn}>âˆ’</button>
+          style={zoomBtn}>−</button>
         <button onClick={() => onScaleChange(1.0)}
           style={{ ...zoomBtn, padding: '2px 6px', fontSize: 9, color: 'var(--color-text-tertiary)' }}>Fit</button>
         <span style={{ fontSize: 9, color: 'var(--color-text-tertiary)', minWidth: 28 }}>
