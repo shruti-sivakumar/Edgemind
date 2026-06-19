@@ -243,8 +243,8 @@ async def _on_correlated_bundle(bundle: CorrelatedSignalBundle) -> None:
 async def _finding_relay_loop() -> None:
     while True:
         try:
-            # Non-destructive: read without consuming
-            findings = await _redis.lrange("edgemind:findings", 0, 9)
+            # Read from relay key — correlation filter uses BRPOP on the main key
+            findings = await _redis.lrange("edgemind:findings:relay", 0, 9)
             for payload in findings:
                 finding = json.loads(payload)
                 fid = finding.get("finding_id", "")

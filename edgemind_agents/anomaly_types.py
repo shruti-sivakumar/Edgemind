@@ -40,6 +40,7 @@ AGENT_NETWORK_LOG = "network_log"
 
 # Redis keys
 REDIS_FINDINGS_KEY = "edgemind:findings"
+REDIS_FINDINGS_RELAY_KEY = "edgemind:findings:relay"
 REDIS_ALERTS_KEY = "edgemind:alerts"
 REDIS_HEARTBEAT_KEY = "edgemind:heartbeat:{agent}"
 FINDINGS_MAX_LEN = 500

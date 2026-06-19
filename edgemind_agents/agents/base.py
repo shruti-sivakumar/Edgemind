@@ -10,6 +10,7 @@ import redis.asyncio as aioredis
 
 from edgemind_agents.anomaly_types import (
     REDIS_FINDINGS_KEY,
+    REDIS_FINDINGS_RELAY_KEY,
     FINDINGS_MAX_LEN,
     REDIS_HEARTBEAT_KEY,
 )
@@ -41,6 +42,8 @@ class BaseAgent(ABC):
         pipe = self.redis.pipeline()
         pipe.lpush(REDIS_FINDINGS_KEY, payload)
         pipe.ltrim(REDIS_FINDINGS_KEY, 0, FINDINGS_MAX_LEN - 1)
+        pipe.lpush(REDIS_FINDINGS_RELAY_KEY, payload)
+        pipe.ltrim(REDIS_FINDINGS_RELAY_KEY, 0, FINDINGS_MAX_LEN - 1)
         await pipe.execute()
         log.info(
             "[%s] finding published: %s severity=%s pod=%s",
