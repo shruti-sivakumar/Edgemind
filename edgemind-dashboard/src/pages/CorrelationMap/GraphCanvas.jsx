@@ -15,7 +15,7 @@ export default function GraphCanvas({ showPvcEdges, showMonitoring, onlyAnomalou
         position: 'relative',
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         padding: 20,
       }}
     >

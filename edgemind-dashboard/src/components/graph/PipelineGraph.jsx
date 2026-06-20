@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useRef } from 'react'
 import { useAppState } from '../../core/store/AppContext.jsx'
 import {
   LAYERS, MONITORING_LAYER, PVC_NODES,
@@ -28,6 +28,30 @@ export default function PipelineGraph({
 }) {
   const { findings, activeIncident, metrics, pvcs } = useAppState()
 
+  // Panning state
+  const [pan, setPan] = useState({ x: 0, y: 0 })
+  const isDragging = useRef(false)
+  const lastMouse = useRef({ x: 0, y: 0 })
+
+  const handleMouseDown = (e) => {
+    isDragging.current = true
+    lastMouse.current = { x: e.clientX, y: e.clientY }
+  }
+
+  const handleMouseMove = (e) => {
+    if (!isDragging.current) return
+    const dx = e.clientX - lastMouse.current.x
+    const dy = e.clientY - lastMouse.current.y
+    // Multiply by a factor so dragging feels 1:1. It depends on screen size, 
+    // but dividing by scale makes panning speed consistent across zoom levels.
+    setPan(p => ({ x: p.x + dx / scale, y: p.y + dy / scale }))
+    lastMouse.current = { x: e.clientX, y: e.clientY }
+  }
+
+  const handleMouseUp = () => {
+    isDragging.current = false
+  }
+
   const causalChain   = activeIncident?.causal_chain  || []
   const rootCausePod  = activeIncident?.root_cause_pod || null
 
@@ -55,15 +79,33 @@ export default function PipelineGraph({
     return set
   }, [visiblePods, onlyAnomalous, podHealthMap, causalChain])
 
-  const svgW = (width  || CANVAS_WIDTH)  * scale
-  const svgH = (height || CANVAS_HEIGHT) * scale
+  // Calculate bounding box dynamically so the graph perfectly centers.
+  // The layout's max column is 5 (x=690). Plus node width (~72px), the rightmost edge is ~762.
+  const minX = -50
+  const maxX = 780
+  const minY = -40
+  const maxY = showMonitoring ? 480 : 320
+  
+  const cx = (minX + maxX) / 2
+  const cy = (minY + maxY) / 2
+  
+  const vbWidth = (maxX - minX) / scale
+  const vbHeight = (maxY - minY) / scale
+  
+  // Subtract pan to move the view
+  const vX = cx - vbWidth / 2 - pan.x
+  const vY = cy - vbHeight / 2 - pan.y
 
   return (
     <svg
-      width={svgW}
-      height={svgH}
-      viewBox={`0 0 ${width || CANVAS_WIDTH} ${height || CANVAS_HEIGHT}`}
-      style={{ overflow: 'visible', fontFamily: 'inherit' }}
+      width="100%"
+      height="100%"
+      viewBox={`${vX} ${vY} ${vbWidth} ${vbHeight}`}
+      style={{ overflow: 'hidden', fontFamily: 'inherit', cursor: isDragging.current ? 'grabbing' : 'grab' }}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
     >
       <GraphEdgeMarkers />
 
@@ -73,7 +115,8 @@ export default function PipelineGraph({
           <circle cx="1" cy="1" r="0.8" fill="var(--color-text-tertiary)" opacity="0.12" />
         </pattern>
       </defs>
-      <rect width={width || CANVAS_WIDTH} height={height || CANVAS_HEIGHT} fill="url(#pg-dot-grid)" />
+      {/* Massive rect to ensure the dot grid covers the entire visible area regardless of scaling */}
+      <rect x={vX - 5000} y={vY - 5000} width={10000} height={10000} fill="url(#pg-dot-grid)" />
 
       {/* Service edges — only render when both endpoints are visible */}
       {SERVICE_EDGES
@@ -84,6 +127,7 @@ export default function PipelineGraph({
             fromPos={NODE_POSITIONS[e.from]}
             toPos={NODE_POSITIONS[e.to]}
             type="service"
+            routing={e.routing}
             health={podHealthMap[e.from] || 'unknown'}
             isActive={causalChain.includes(e.from) && causalChain.includes(e.to)}
           />
@@ -101,6 +145,7 @@ export default function PipelineGraph({
             fromPos={NODE_POSITIONS[e.from]}
             toPos={NODE_POSITIONS[e.to]}
             type="shared-data"
+            routing={e.routing}
             health="unknown"
             isActive={false}
           />
@@ -142,6 +187,14 @@ export default function PipelineGraph({
       {/* PVC nodes */}
       {PVC_NODES.map(pvc => {
         if (!showMonitoring && pvc.id === 'pvc-prometheus-tsdb') return null
+        
+        // Hide orphaned PVCs if anomalous-only is selected
+        if (onlyAnomalous) {
+          const connectedEdges = DATA_EDGES.filter(e => e.to === pvc.id)
+          const hasVisibleSource = connectedEdges.some(e => visiblePodSet.has(e.from))
+          if (!hasVisibleSource) return null
+        }
+
         const pos = NODE_POSITIONS[pvc.id]
         if (!pos) return null
         const pvcState = pvcs[pvc.sublabel]

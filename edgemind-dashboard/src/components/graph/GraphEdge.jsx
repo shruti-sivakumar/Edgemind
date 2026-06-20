@@ -10,6 +10,7 @@ const HEALTH_EDGE_COLORS = {
 export default function GraphEdge({
   fromPos, toPos,
   type = 'service',
+  routing,
   health = 'unknown',
   isActive = false,
 }) {
@@ -28,10 +29,32 @@ export default function GraphEdge({
   const dy = y2 - y1
   const len = Math.sqrt(dx * dx + dy * dy)
   if (len === 0) return null
-  const ux = dx / len, uy = dy / len
-  const tx = x2 - ux * 22, ty = y2 - uy * 22  // stop before node centre
 
-  const pathD = `M ${x1} ${y1} L ${tx} ${ty}`
+  let pathD
+  // Default diagonal entry calculation
+  let ux = dx / len, uy = dy / len
+  let tx = x2 - ux * 22, ty = y2 - uy * 22
+  
+  if (routing === 'up-right') {
+    // Exits UP from node 1, enters RIGHT into node 2.
+    // Node 2 is to the right, so we enter its left side horizontally.
+    tx = x2 - 50
+    ty = y2
+    pathD = `M ${x1} ${y1} L ${x1} ${ty} L ${tx} ${ty}`
+  } else if (routing === 'right-down') {
+    // Exits RIGHT from node 1, enters DOWN into node 2.
+    // Node 2 is below, so we enter its top side vertically.
+    tx = x2
+    ty = y2 - 26
+    pathD = `M ${x1} ${y1} L ${tx} ${y1} L ${tx} ${ty}`
+  } else if (routing === 'around-right') {
+    // Exits UP, travels RIGHT above the entire graph, drops DOWN on the far right, enters LEFT into node.
+    tx = x2 + 50
+    ty = y2
+    pathD = `M ${x1} ${y1} L ${x1} -10 L 780 -10 L 780 ${ty} L ${tx} ${ty}`
+  } else {
+    pathD = `M ${x1} ${y1} L ${tx} ${ty}`
+  }
   const markerEnd = type === 'service'
     ? (isActive ? 'url(#arrow-active)' : `url(#arrow-${health})`)
     : undefined

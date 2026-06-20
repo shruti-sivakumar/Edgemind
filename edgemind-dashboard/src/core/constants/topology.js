@@ -26,30 +26,49 @@ export const MONITORING_LAYER = [
 ]
 
 export const PVC_NODES = [
-  { id: 'pvc-historian-data',    label: 'PVC-1', sublabel: 'historian-data',   col: 2 },
-  { id: 'pvc-export-data',       label: 'PVC-2', sublabel: 'export-data',      col: 3.5 },
+  { id: 'pvc-historian-data',    label: 'PVC-1', sublabel: 'historian-data',   col: 3 },
+  { id: 'pvc-export-data',       label: 'PVC-2', sublabel: 'export-data',      col: 4.5 },
   { id: 'pvc-prometheus-tsdb',   label: 'PVC-3', sublabel: 'prometheus-tsdb',  col: 6.4 },
 ]
 
 // Compute static (x, y) for each pod
 function buildPositions() {
   const pos = {}
+  const PVC_Y = OY + 3 * ROW // 250
+  
   LAYERS.forEach((layer, colIdx) => {
     const totalRows = layer.length
     layer.forEach((pod, rowIdx) => {
-      const x = OX + colIdx * COL
-      // Center the column vertically
-      const y = OY + rowIdx * ROW - ((totalRows - 1) * ROW) / 2 + ROW
+      let x = OX + colIdx * COL
+      let y = OY + rowIdx * ROW - ((totalRows - 1) * ROW) / 2 + ROW
+      
+      if (colIdx === 3) {
+        if (pod === 'feature-extractor') {
+          y = OY + ROW // 110
+        } else if (pod === 'batch-sync') {
+          y = PVC_Y // 250
+        }
+      }
+      
       pos[pod] = { x, y }
     })
   })
-  MONITORING_LAYER.forEach((pod, rowIdx) => {
-    pos[pod] = { x: OX + 6.4 * COL, y: OY + rowIdx * 46 }
+  const MON_Y = OY + 4.5 * ROW
+  MONITORING_LAYER.forEach((pod, i) => {
+    pos[pod] = { x: OX + i * COL, y: MON_Y }
   })
+  
   // PVC row below main chain
-  const PVC_Y = OY + 3 * ROW
   PVC_NODES.forEach(pvc => {
-    pos[pvc.id] = { x: OX + pvc.col * COL, y: PVC_Y }
+    if (pvc.id === 'pvc-prometheus-tsdb') {
+      // Place directly below Prometheus (which is index 2 in MONITORING_LAYER)
+      pos[pvc.id] = { x: OX + 2 * COL, y: MON_Y + 75 }
+    } else if (pvc.id === 'pvc-historian-data') {
+      // User requested PVC-1 to take the old batch-sync spot (top row)
+      pos[pvc.id] = { x: OX + pvc.col * COL, y: OY }
+    } else {
+      pos[pvc.id] = { x: OX + pvc.col * COL, y: PVC_Y }
+    }
   })
   return pos
 }
@@ -77,10 +96,6 @@ export const DATA_EDGES = [
   { from: 'alert-manager',     to: 'pvc-export-data' },
   { from: 'batch-sync',        to: 'pvc-export-data' },
   { from: 'prometheus',        to: 'pvc-prometheus-tsdb' },
-  // Write-back edges: feature-extractor queries historian and writes pump_features back;
-  // health-scorer reads pump_features from historian
-  { from: 'feature-extractor', to: 'data-historian' },
-  { from: 'health-scorer',     to: 'data-historian' },
 ]
 
 // Upstream / downstream adjacency (for NodeDetailDrawer)

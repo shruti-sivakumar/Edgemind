@@ -34,23 +34,15 @@ function LocalClock() {
 
 function LogoMark() {
   return (
-    <div style={{
-      width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
-      background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-      border: '2px solid #e53e3e',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      boxShadow: '0 1px 4px rgba(0,0,0,0.25)',
-    }}>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="2" fill="#e53e3e" />
-        <line x1="12" y1="10" x2="12" y2="4"  stroke="#90cdf4" strokeWidth="1.5" strokeLinecap="round" />
-        <line x1="12" y1="14" x2="7"  y2="19" stroke="#90cdf4" strokeWidth="1.5" strokeLinecap="round" />
-        <line x1="12" y1="14" x2="17" y2="19" stroke="#90cdf4" strokeWidth="1.5" strokeLinecap="round" />
-        <circle cx="12" cy="4"  r="1.5" fill="#90cdf4" />
-        <circle cx="7"  cy="19" r="1.5" fill="#90cdf4" />
-        <circle cx="17" cy="19" r="1.5" fill="#90cdf4" />
-      </svg>
-    </div>
+    <img 
+      src="/logo.png" 
+      alt="EdgeMind Logo"
+      style={{
+        width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
+        boxShadow: '0 1px 4px rgba(0,0,0,0.25)',
+        objectFit: 'cover'
+      }}
+    />
   )
 }
 
