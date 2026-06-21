@@ -12,39 +12,41 @@ export default function PodDetailView({ podName, onBack }) {
   const podFindings = findings.filter(f => f.pod === podName)
   const worst = podFindings.find(f => f.severity === 'critical') || podFindings.find(f => f.severity === 'warning') || null
   const infoOnly = INFO_ONLY_PODS.has(podName)
+  const isKubeSystem = ns === 'kube-system'
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-      <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--color-border-card)', display: 'flex', alignItems: 'center', gap: 10 }}>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <div style={{ padding: '1vh 1vw', borderBottom: '1px solid var(--color-border-card)', display: 'flex', alignItems: 'center', gap: 10 }}>
         <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--color-text-primary)' }}>{podName}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'nowrap' }}>
+            <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--color-text-primary)', whiteSpace: 'nowrap' }}>{podName}</span>
             <span style={{
               fontSize: 10, padding: '1px 6px', borderRadius: 10,
               background: 'var(--color-info-tint)',
               color: 'var(--color-info)',
+              whiteSpace: 'nowrap'
             }}>{ns}</span>
             {worst && <SeverityBadge severity={worst.severity} />}
+            <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginLeft: 8, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{role}</span>
           </div>
-          <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginTop: 2 }}>{role}</div>
         </div>
       </div>
 
-      <div style={{ flex: 1, overflow: 'auto', display: 'flex', gap: 0 }}>
+      <div style={{ flex: 1, display: 'flex', gap: 0 }}>
         {!infoOnly && (
           <div style={{
-            flex: 1, borderRight: '1px solid var(--color-border-card)',
-            padding: 16, overflowY: 'auto', minWidth: 0,
+            flex: 1, borderRight: isKubeSystem ? 'none' : '1px solid var(--color-border-card)',
+            padding: '1.5vh 1vw', minWidth: 0,
           }}>
-            <PanelHeader title="Infrastructure Metrics" style={{ marginBottom: 10 }} />
-            <CommonInfraPanel podName={podName} />
+            <CommonInfraPanel podName={podName} isKubeSystem={isKubeSystem} />
           </div>
         )}
 
-        <div style={{ flex: 1, padding: 16, overflowY: 'auto' }}>
-          <PanelHeader title="App-Specific" style={{ marginBottom: 10 }} />
-          <AppSpecificPanel podName={podName} />
-        </div>
+        {!isKubeSystem && (
+          <div style={{ flex: 1, padding: '1.5vh 1vw' }}>
+            <AppSpecificPanel podName={podName} />
+          </div>
+        )}
       </div>
     </div>
   )

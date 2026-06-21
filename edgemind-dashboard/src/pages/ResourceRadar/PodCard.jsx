@@ -63,14 +63,14 @@ export default function PodCard({ podName, onClick }) {
       style={{
         background: 'var(--color-bg-card)',
         border: `1px solid ${borderColor}`,
-        borderRadius: 6, padding: '10px 12px', cursor: 'pointer',
+        borderRadius: 6, padding: '0.8vh 0.8vw', cursor: 'pointer',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
       }}
     >
       {/* Name row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5vw', marginBottom: '0.5vh' }}>
         <StatusDot health={worst ? health : 'healthy'} />
         <span style={{
           fontSize: 11, fontWeight: 600, flex: 1,
@@ -82,12 +82,12 @@ export default function PodCard({ podName, onClick }) {
       </div>
 
       {/* Badge row */}
-      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 7 }}>
-        <span style={{ fontSize: 9, padding: '1px 5px', borderRadius: 8, background: nsStyle.bg, color: nsStyle.color }}>
+      <div style={{ display: 'flex', gap: '0.4vw', flexWrap: 'nowrap', marginBottom: '0.6vh', overflow: 'hidden' }}>
+        <span style={{ fontSize: 7, padding: '1px 3px', borderRadius: 8, background: nsStyle.bg, color: nsStyle.color, whiteSpace: 'nowrap' }}>
           {ns}
         </span>
         {isFaultTarget && (
-          <span style={{ fontSize: 9, padding: '1px 5px', borderRadius: 8, background: 'var(--color-danger-tint)', color: 'var(--color-danger)', border: '1px solid var(--color-danger-border)' }}>
+          <span style={{ fontSize: 7, padding: '1px 3px', borderRadius: 8, background: 'var(--color-danger-tint)', color: 'var(--color-danger)', border: '1px solid var(--color-danger-border)', whiteSpace: 'nowrap' }}>
             Fault Target
           </span>
         )}
@@ -100,7 +100,7 @@ export default function PodCard({ podName, onClick }) {
 
       {/* Metrics */}
       {!infoOnly && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4vh' }}>
           {cpuPct != null
             ? <MiniProgressBar label="CPU" value={cpuPct} max={100} />
             : <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)' }}>CPU —</div>
@@ -126,9 +126,9 @@ export default function PodCard({ podName, onClick }) {
       {/* Anomaly footer */}
       {worst && (
         <div style={{
-          fontSize: 10, marginTop: 7,
+          fontSize: 10, marginTop: '0.6vh',
           color: health === 'critical' ? 'var(--color-danger)' : 'var(--color-warning)',
-          borderTop: '1px solid var(--color-border-card)', paddingTop: 5,
+          borderTop: '1px solid var(--color-border-card)', paddingTop: '0.5vh',
         }}>
           {worst.anomaly_type}
         </div>

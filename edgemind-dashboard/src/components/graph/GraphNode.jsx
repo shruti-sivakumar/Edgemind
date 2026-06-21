@@ -22,18 +22,20 @@ export default function GraphNode({
   const cx = x - w / 2
   const cy = y - h / 2
 
-  // All nodes use ABB red — intensity encodes health severity
-  const borderColor = isRootCause              ? '#ff000f' :
+  // All pods use ABB red base — intensity encodes health severity. PVCs use gray.
+  const borderColor = isPvc                    ? 'var(--color-border-secondary)' :
+                      isRootCause              ? '#ff000f' :
                       isInCausalPath           ? 'rgba(255,0,15,0.80)' :
                       health === 'critical'    ? '#ff000f' :
                       health === 'warning'     ? 'rgba(255,0,15,0.62)' :
                       health === 'healthy'     ? 'rgba(255,0,15,0.32)' :
-                      'rgba(255,0,15,0.20)'   // unknown
+                      'rgba(255,0,15,0.20)'   // unknown (faint red)
 
   const strokeW = (isRootCause || health === 'critical') ? 2.5 :
                   (isInCausalPath || health === 'warning') ? 2.0 : 1.5
 
-  const bg = health === 'critical' ? 'rgba(255,0,15,0.05)' :
+  const bg = isPvc                 ? 'var(--color-bg-surface)' :
+             health === 'critical' ? 'rgba(255,0,15,0.05)' :
              health === 'warning'  ? 'rgba(184,148,0,0.06)' :
              '#ffffff'
 
@@ -106,9 +108,6 @@ export default function GraphNode({
         fill={bg} stroke={borderColor}
         strokeWidth={strokeW}
       />
-
-      {/* Role accent left bar */}
-      <rect x={cx} y={cy + 1} width={3} height={h - 2} rx={1} fill={roleColor} opacity={0.9} />
 
       {/* Root cause crown badge */}
       {isRootCause && (

@@ -32,15 +32,28 @@ export default function DependencyGraph() {
         scale={scale} onScaleChange={setScale}
       />
 
-      <div style={{ flex: 1, overflow: 'hidden', position: 'relative', display: 'flex', flexDirection: 'column', padding: 16 }}>
-        <GraphCanvas
-          showPvcEdges={showPvcEdges}
-          showMonitoring={showMonitoring}
-          onlyAnomalous={onlyAnomalous}
-          scale={scale}
-          onNodeClick={pod => setSelectedNode(pod)}
-        />
-        <TimelineStrip />
+      <div style={{ flex: 1, overflow: 'hidden', position: 'relative', display: 'flex', flexDirection: 'row', padding: 16 }}>
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          marginRight: selectedNode ? 336 : 0,
+          transition: 'margin-right 0.3s ease',
+          minWidth: 0,
+        }}>
+          <div style={{ flex: 1, position: 'relative', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+            <GraphCanvas
+              showPvcEdges={showPvcEdges}
+              showMonitoring={showMonitoring}
+              onlyAnomalous={onlyAnomalous}
+              scale={scale}
+              onNodeClick={pod => setSelectedNode(pod)}
+            />
+          </div>
+          <div style={{ flexShrink: 0, zIndex: 10, marginTop: 12 }}>
+            <TimelineStrip />
+          </div>
+        </div>
 
         {/* Incident overlay — only when drawer is closed */}
         {!selectedNode && <IncidentOverlay />}

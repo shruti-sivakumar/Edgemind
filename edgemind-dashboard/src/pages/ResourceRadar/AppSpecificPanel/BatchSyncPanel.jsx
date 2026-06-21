@@ -17,8 +17,7 @@ export default function BatchSyncPanel({ podName }) {
   const busy = netTx != null && netTx > 5000
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700 }}>BATCH EXPORT</div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, height: '100%', justifyContent: 'center' }}>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <div style={{
@@ -31,13 +30,13 @@ export default function BatchSyncPanel({ podName }) {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        <div style={{ background: 'var(--color-bg-surface)', borderRadius: 4, padding: '8px 10px' }}>
+        <div style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border-card)', boxShadow: '0 1px 3px var(--color-shadow)', borderRadius: 4, padding: '8px 10px' }}>
           <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)' }}>PVC-2 Read</div>
           <div style={{ fontSize: 16, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: 'var(--color-text-primary)' }}>
             {fsRead != null ? `${(fsRead / 1024).toFixed(1)} KB/s` : '—'}
           </div>
         </div>
-        <div style={{ background: 'var(--color-bg-surface)', borderRadius: 4, padding: '8px 10px' }}>
+        <div style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border-card)', boxShadow: '0 1px 3px var(--color-shadow)', borderRadius: 4, padding: '8px 10px' }}>
           <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)' }}>TX to upload</div>
           <div style={{ fontSize: 16, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: 'var(--color-text-primary)' }}>
             {netTx != null ? `${(netTx / 1024).toFixed(1)} KB/s` : '—'}

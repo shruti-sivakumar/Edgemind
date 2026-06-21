@@ -26,9 +26,9 @@ export default function EdgeMindAgentsPanel({ podName }) {
   const totalFindings = findings.length
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14, height: '100%', justifyContent: 'flex-start' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700 }}>AGENT HEARTBEATS</div>
+        
         <span style={{
           fontSize: 10, padding: '2px 8px', borderRadius: 10,
           background: agentsReady ? 'var(--color-success-tint)' : 'var(--color-warning-tint)',
@@ -38,6 +38,8 @@ export default function EdgeMindAgentsPanel({ podName }) {
         </span>
       </div>
 
+      <div style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border-card)', boxShadow: '0 1px 3px var(--color-shadow)', borderRadius: 6, padding: '4px 10px' }}>
+      <div style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border-card)', boxShadow: '0 1px 3px var(--color-shadow)', borderRadius: 6, padding: '4px 10px' }}>
       {AGENTS.map(agent => {
         const ts = agentHeartbeats[agent]
         const alive = ts && (Date.now() - new Date(ts).getTime()) < 60000
@@ -49,8 +51,10 @@ export default function EdgeMindAgentsPanel({ podName }) {
           </div>
         )
       })}
+      </div>
+      </div>
 
-      <div>
+      <div style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border-card)', boxShadow: '0 1px 3px var(--color-shadow)', borderRadius: 6, padding: '8px 10px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
           <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700 }}>RECENT FINDINGS</div>
           <span style={{ fontSize: 10, color: 'var(--color-text-tertiary)' }}>Total (session): {totalFindings}</span>

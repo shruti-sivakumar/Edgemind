@@ -7,7 +7,7 @@ function FloatingCard({ position, title, value, unit, warn, children }) {
   return (
     <Html position={position} center>
       <div style={{
-        background: 'rgba(20, 20, 25, 0.85)',
+        background: 'var(--color-bg-card)',
         backdropFilter: 'blur(10px)',
         border: `1px solid ${warn ? 'var(--color-warning)' : 'var(--color-border-card)'}`,
         borderRadius: 6,
@@ -55,7 +55,7 @@ function SpinningCube({ rpm }) {
 
 export default function Pump3DScene({ readings, activeFault }) {
   return (
-    <div style={{ flex: 1, minHeight: 400, position: 'relative', background: 'var(--color-bg-surface)', borderRadius: 8, overflow: 'hidden' }}>
+    <div style={{ height: 400, position: 'relative', background: 'var(--color-bg-surface)', borderRadius: 8, overflow: 'hidden' }}>
       <Canvas camera={{ position: [4, 3, 5], fov: 45 }}>
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 10, 5]} intensity={1} />
@@ -86,7 +86,6 @@ export default function Pump3DScene({ readings, activeFault }) {
       
       {/* Overlay Status */}
       <div style={{ position: 'absolute', top: 12, left: 12, display: 'flex', flexDirection: 'column', gap: 6, pointerEvents: 'none' }}>
-        <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 800 }}>LIVE 3D TELEMETRY</div>
         {readings.emission_hz && (
           <div style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4, background: 'var(--color-bg-card)', color: readings.emission_hz >= 10 ? 'var(--color-danger)' : 'var(--color-success)', border: '1px solid var(--color-border-card)', display: 'inline-block' }}>
             Emission: {readings.emission_hz} Hz

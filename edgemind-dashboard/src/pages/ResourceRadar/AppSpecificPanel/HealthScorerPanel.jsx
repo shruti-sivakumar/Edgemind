@@ -35,7 +35,7 @@ function PumpHealthCard({ pump, alert }) {
     : 'var(--color-success)'
 
   return (
-    <div style={{ padding: '8px 10px', background: 'var(--color-bg-surface)', borderRadius: 6, borderLeft: `3px solid ${stateColor}` }}>
+    <div style={{ padding: '8px 10px', background: 'var(--color-bg-card)', border: '1px solid var(--color-border-card)', boxShadow: '0 1px 3px var(--color-shadow)', borderRadius: 6, borderLeft: `3px solid ${stateColor}` }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
         <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-primary)', fontFamily: 'monospace' }}>{pump}</span>
         <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 8, background: `${stateColor}22`, color: stateColor, fontWeight: 700 }}>
@@ -70,14 +70,13 @@ export default function HealthScorerPanel({ podName }) {
   }, [pumpAlerts])
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700 }}>PUMP HEALTH SCORES</div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, height: '100%', justifyContent: 'center' }}>
 
       {PUMPS.map(pump => (
         <PumpHealthCard key={pump} pump={pump} alert={alertsByPump[pump] || null} />
       ))}
 
-      <div style={{ marginTop: 2, fontSize: 11, color: 'var(--color-text-secondary)', background: 'var(--color-bg-surface)', borderRadius: 4, padding: '6px 10px' }}>
+      <div style={{ marginTop: 2, fontSize: 11, color: 'var(--color-text-secondary)', background: 'var(--color-bg-card)', border: '1px solid var(--color-border-card)', boxShadow: '0 1px 3px var(--color-shadow)', borderRadius: 4, padding: '6px 10px' }}>
         Scores sourced from alert-manager. ≥75 = Healthy · 50–74 = Warning · &lt;50 = Critical.
       </div>
     </div>

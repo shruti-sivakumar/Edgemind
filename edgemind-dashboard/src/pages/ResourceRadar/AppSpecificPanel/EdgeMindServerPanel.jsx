@@ -5,7 +5,7 @@ import { findMetrics } from '../../../core/selectors/podHealth.js'
 
 function StatBox({ label, value }) {
   return (
-    <div style={{ background: 'var(--color-bg-surface)', borderRadius: 4, padding: '8px 10px' }}>
+    <div style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border-card)', boxShadow: '0 1px 3px var(--color-shadow)', borderRadius: 4, padding: '8px 10px' }}>
       <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)' }}>{label}</div>
       <div style={{ fontSize: 16, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: 'var(--color-text-primary)' }}>{value ?? '—'}</div>
     </div>
@@ -30,7 +30,7 @@ function CorrelatedAlertCard({ alert }) {
     : (alert.causal_chain || null)
 
   return (
-    <div style={{ border: `1px solid ${borderColor}`, borderRadius: 5, padding: '8px 10px', background: 'var(--color-bg-surface)', marginBottom: 8 }}>
+    <div style={{ border: `1px solid ${borderColor}`, borderRadius: 5, padding: '8px 10px', background: 'var(--color-bg-card)', border: '1px solid var(--color-border-card)', boxShadow: '0 1px 3px var(--color-shadow)', marginBottom: 8 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
         <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-primary)' }}>{alert.alert_type || 'correlated_alert'}</span>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
@@ -81,9 +81,9 @@ export default function EdgeMindServerPanel({ podName }) {
   const recentAlerts = correlatedAlerts.slice(0, 2)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, height: '100%', justifyContent: 'flex-start' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700 }}>ORCHESTRATOR</div>
+        
         <span style={{
           fontSize: 10, padding: '2px 8px', borderRadius: 10,
           background: connected ? 'var(--color-success-tint)' : 'var(--color-danger-tint)',
@@ -102,7 +102,7 @@ export default function EdgeMindServerPanel({ podName }) {
       {memPct != null && <MiniProgressBar label="MEM" value={memPct} max={100} />}
 
       {/* Orchestrator config */}
-      <div style={{ background: 'var(--color-bg-surface)', borderRadius: 4, padding: '8px 10px' }}>
+      <div style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border-card)', boxShadow: '0 1px 3px var(--color-shadow)', borderRadius: 4, padding: '8px 10px' }}>
         <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 5 }}>ORCHESTRATOR CONFIG</div>
         {[
           ['Correlation window', '45 s'],

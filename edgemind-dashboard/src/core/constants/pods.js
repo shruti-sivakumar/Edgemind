@@ -41,6 +41,12 @@ export const MONITORING_PODS = [
   'node-exporter',
 ]
 
+export const KUBE_SYSTEM_PODS = [
+  'coredns',
+  'local-path-provisioner',
+  'metrics-server',
+]
+
 export const INFO_ONLY_PODS = new Set([
   'mock-upload',
   'kube-state-metrics',
@@ -52,6 +58,7 @@ export const SENSOR_SIM_PODS = ['sensor-sim-1', 'sensor-sim-2', 'sensor-sim-3']
 export const POD_NAMESPACES = {
   ...Object.fromEntries(PUMP_STATION_PODS.map(p => [p, 'pump-station'])),
   ...Object.fromEntries(MONITORING_PODS.map(p => [p, 'monitoring'])),
+  ...Object.fromEntries(KUBE_SYSTEM_PODS.map(p => [p, 'kube-system'])),
 }
 
 export const POD_TO_PUMP = {

@@ -22,8 +22,7 @@ export default function HistorianPanel({ podName }) {
     : 'var(--color-success)'
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700 }}>STORAGE (PVC-1)</div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14, height: '100%', justifyContent: 'center' }}>
 
       <PvcGauge
         pvcName="historian-data"
@@ -35,13 +34,13 @@ export default function HistorianPanel({ podName }) {
 
       {/* FS Write / Read rates */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        <div style={{ background: 'var(--color-bg-surface)', borderRadius: 4, padding: '8px 10px' }}>
+        <div style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border-card)', boxShadow: '0 1px 3px var(--color-shadow)', borderRadius: 4, padding: '8px 10px' }}>
           <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)' }}>FS Write Rate</div>
           <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-text-primary)', fontVariantNumeric: 'tabular-nums' }}>
             {fsWrite != null ? `${(fsWrite / 1024).toFixed(1)} KB/s` : '—'}
           </div>
         </div>
-        <div style={{ background: 'var(--color-bg-surface)', borderRadius: 4, padding: '8px 10px' }}>
+        <div style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border-card)', boxShadow: '0 1px 3px var(--color-shadow)', borderRadius: 4, padding: '8px 10px' }}>
           <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)' }}>FS Read Rate</div>
           <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-text-primary)', fontVariantNumeric: 'tabular-nums' }}>
             {fsRead != null ? `${(fsRead / 1024).toFixed(1)} KB/s` : '—'}
@@ -50,7 +49,7 @@ export default function HistorianPanel({ podName }) {
       </div>
 
       {/* IO Saturation gauge */}
-      <div style={{ background: 'var(--color-bg-surface)', borderRadius: 4, padding: '10px 12px' }}>
+      <div style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border-card)', boxShadow: '0 1px 3px var(--color-shadow)', borderRadius: 4, padding: '10px 12px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 6 }}>
           <span style={{ color: 'var(--color-text-secondary)' }}>IO Saturation</span>
           <span style={{ color: ioColor, fontVariantNumeric: 'tabular-nums', fontWeight: 700 }}>
@@ -70,7 +69,7 @@ export default function HistorianPanel({ podName }) {
       </div>
 
       {/* Data stored */}
-      <div style={{ background: 'var(--color-bg-surface)', borderRadius: 4, padding: '8px 10px' }}>
+      <div style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border-card)', boxShadow: '0 1px 3px var(--color-shadow)', borderRadius: 4, padding: '8px 10px' }}>
         <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700, marginBottom: 6 }}>DATA STORED</div>
         {[
           'pump_telemetry · 3 pumps · 7-day retention',

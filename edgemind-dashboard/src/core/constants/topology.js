@@ -53,7 +53,7 @@ function buildPositions() {
       pos[pod] = { x, y }
     })
   })
-  const MON_Y = OY + 4.5 * ROW
+  const MON_Y = OY + 3.8 * ROW
   MONITORING_LAYER.forEach((pod, i) => {
     pos[pod] = { x: OX + i * COL, y: MON_Y }
   })
@@ -64,8 +64,8 @@ function buildPositions() {
       // Place directly below Prometheus (which is index 2 in MONITORING_LAYER)
       pos[pvc.id] = { x: OX + 2 * COL, y: MON_Y + 75 }
     } else if (pvc.id === 'pvc-historian-data') {
-      // User requested PVC-1 to take the old batch-sync spot (top row)
-      pos[pvc.id] = { x: OX + pvc.col * COL, y: OY }
+      // User requested PVC-1 to take the old batch-sync spot (top row), but moved higher
+      pos[pvc.id] = { x: OX + pvc.col * COL, y: OY - 30 }
     } else {
       pos[pvc.id] = { x: OX + pvc.col * COL, y: PVC_Y }
     }
@@ -83,7 +83,7 @@ export const SERVICE_EDGES = [
   { from: 'opc-ua-collector',to: 'data-historian' },
   { from: 'data-historian',  to: 'feature-extractor' },
   { from: 'feature-extractor',to: 'health-scorer' },
-  { from: 'feature-extractor',to: 'batch-sync' },
+  { from: 'feature-extractor',to: 'batch-sync', noArrow: true },
   { from: 'health-scorer',   to: 'alert-manager' },
   { from: 'batch-sync',      to: 'alert-manager' },
 ]

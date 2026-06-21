@@ -52,16 +52,16 @@ export default function ResourceRadar() {
   }, [findings])
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', width: '100%' }}>
 
       {/* ── Top bar ─────────────────────────────────────────────────── */}
       <div style={{
-        height: 'var(--header-height)', 
+        flex: '0 0 var(--header-height)', 
         borderBottom: '1px solid var(--color-border-card)',
-        marginTop: 12,
+        marginTop: '1vh',
         display: 'flex', alignItems: 'center', flexShrink: 0,
         background: 'var(--color-bg-card)', position: 'relative',
-        padding: '0 20px',
+        padding: '0 2vw',
       }}>
         {/* Title on the left */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginRight: 28 }}>
@@ -119,8 +119,8 @@ export default function ResourceRadar() {
       </div>
 
       {/* ── Body ────────────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden', width: '100%' }}>
-        <div style={{ flex: '0 0 auto', padding: '16px 16px 0 16px', borderBottom: '1px solid var(--color-border-card)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, width: '100%' }}>
+        <div style={{ flex: '0 1 auto', padding: '1vh 1vw 0 1vw', borderBottom: '1px solid var(--color-border-card)', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
           <OverviewGrid onSelectPod={setSelectedPod} nsFilter={nsFilter} selectedPod={selectedPod} />
         </div>
         

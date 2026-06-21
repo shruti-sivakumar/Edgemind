@@ -15,9 +15,9 @@ export default function InfraOnlyPanel({ podName }) {
   const cpu = cpuArr.length ? cpuArr[cpuArr.length - 1] : null
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700 }}>ROLE</div>
-      <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', background: 'var(--color-bg-surface)', borderRadius: 4, padding: '8px 10px', lineHeight: 1.5 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, height: '100%', justifyContent: 'flex-start' }}>
+
+      <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', background: 'var(--color-bg-card)', border: '1px solid var(--color-border-card)', boxShadow: '0 1px 3px var(--color-shadow)', borderRadius: 4, padding: '8px 10px', lineHeight: 1.5 }}>
         {role}
       </div>
 

@@ -1,4 +1,4 @@
-﻿import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAppState } from '../../core/store/AppContext.jsx'
 import { POD_ROLES, POD_NAMESPACES } from '../../core/constants/pods.js'
 import { UPSTREAM, DOWNSTREAM } from '../../core/constants/topology.js'
@@ -46,9 +46,10 @@ export default function NodeDetailDrawer({ podName, onClose }) {
 
   return (
     <div style={{
-      position: 'absolute', right: 0, top: 0, bottom: 0, width: 320,
-      background: 'var(--color-bg-card)', borderLeft: '1px solid var(--color-border-card)',
-      display: 'flex', flexDirection: 'column', zIndex: 20,
+      position: 'absolute', right: 16, top: 16, bottom: 16, width: 320,
+      background: 'var(--color-bg-card)', borderRadius: 12,
+      boxShadow: '0 4px 20px rgba(0,0,0,0.15)', border: '1px solid var(--color-border-card)',
+      display: 'flex', flexDirection: 'column', zIndex: 20, overflow: 'hidden'
     }}>
       {/* Header */}
       <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--color-border-card)', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -117,7 +118,7 @@ export default function NodeDetailDrawer({ podName, onClose }) {
         {/* Metrics */}
         <div>
           <PanelHeader title="Metrics" style={{ marginBottom: 4 }} />
-          <MetricTabs podName={podName} />
+          <MetricTabs podName={podName} layout="column" />
         </div>
 
         {/* Topology */}
@@ -156,17 +157,17 @@ export default function NodeDetailDrawer({ podName, onClose }) {
           onClick={() => navigate(`/radar?pod=${podName}`)}
           style={actionBtn('var(--color-info)', 'var(--color-info-tint)')}
         >
-          View in Resource Radar →
+          View in Pod Stats
         </button>
         <button
           onClick={() => navigate(`/investigate?pod=${podName}`)}
-          style={actionBtn('var(--color-warning)', 'var(--color-warning-tint)')}
+          style={actionBtn('var(--color-info)', 'var(--color-info-tint)')}
         >
-          Investigate with AI →
+          Diagnose with AI
         </button>
         <button
           onClick={() => navigate('/timeline')}
-          style={actionBtn('var(--color-text-secondary)', 'transparent')}
+          style={actionBtn('var(--color-info)', 'var(--color-info-tint)')}
         >
           View in Anomaly Timeline
         </button>

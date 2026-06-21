@@ -1,4 +1,4 @@
-﻿import { useMemo } from 'react'
+import { useMemo } from 'react'
 import { useAppState } from '../../../core/store/AppContext.jsx'
 import TrendSparkline from '../../../components/charts/TrendSparkline.jsx'
 import IsoZoneBadge from '../../../components/ui/IsoZoneBadge.jsx'
@@ -18,7 +18,7 @@ function PumpBearingRow({ pump, alertsByPump, sensorReadings }) {
     : 'var(--color-danger)'
 
   return (
-    <div style={{ padding: '6px 0', borderBottom: '1px solid var(--color-border-card)' }}>
+    <div style={{ padding: '8px 12px', background: 'var(--color-bg-card)', border: '1px solid var(--color-border-card)', boxShadow: '0 1px 3px var(--color-shadow)', borderRadius: 6 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, marginBottom: 5 }}>
         <span style={{ width: 52, color: 'var(--color-text-tertiary)', fontFamily: 'monospace', flexShrink: 0 }}>{pump}</span>
         <span style={{ flex: 1, fontVariantNumeric: 'tabular-nums', color: 'var(--color-text-secondary)', fontSize: 11 }}>
@@ -72,9 +72,8 @@ export default function FeatureExtractorPanel({ podName }) {
   }, [m.mem_rss])
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, height: '100%', justifyContent: 'center' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700 }}>BEARING HEALTH PER PUMP</div>
         {leakMode && (
           <span style={{
             fontSize: 9, padding: '2px 6px', borderRadius: 8,
@@ -95,7 +94,7 @@ export default function FeatureExtractorPanel({ podName }) {
         <TrendSparkline podName={podName} series="mem_rss" />
       </div>
 
-      <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', background: 'var(--color-bg-surface)', borderRadius: 4, padding: '6px 10px' }}>
+      <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', background: 'var(--color-bg-card)', border: '1px solid var(--color-border-card)', boxShadow: '0 1px 3px var(--color-shadow)', borderRadius: 4, padding: '6px 10px' }}>
         Queries InfluxDB every 10 s. Computes vibration features (RMS, kurtosis, crest factor) and bearing health score via a lightweight ML model.
       </div>
     </div>

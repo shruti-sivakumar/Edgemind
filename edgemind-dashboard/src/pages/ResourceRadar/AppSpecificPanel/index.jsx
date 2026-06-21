@@ -1,3 +1,4 @@
+import PanelHeader from '../../../components/ui/PanelHeader.jsx'
 import SensorSimPanel from './SensorSimPanel.jsx'
 import CollectorPanel from './CollectorPanel.jsx'
 import HistorianPanel from './HistorianPanel.jsx'
@@ -25,7 +26,32 @@ const PANEL_MAP = {
   'edgemind-server':   EdgeMindServerPanel,
 }
 
+const HINTS = {
+  'opc-ua-collector': 'COLLECTION STATS',
+  'data-historian': 'STORAGE',
+  'feature-extractor': 'BEARING HEALTH',
+  'health-scorer': 'HEALTH SCORES',
+  'alert-manager': 'ACTIVE ALERTS',
+  'batch-sync': 'EXPORT BATCH',
+  'mock-upload': 'CLOUD SINK',
+  'edgemind-agents': 'AGENT STATUS',
+  'edgemind-server': 'ORCHESTRATOR',
+  'prometheus': 'METRICS SCRAPER',
+  'redis': 'MESSAGE BROKER',
+  'kube-state-metrics': 'K8S STATE',
+  'node-exporter': 'HOST METRICS'
+}
+
 export default function AppSpecificPanel({ podName }) {
   const Panel = PANEL_MAP[podName] || InfraOnlyPanel
-  return <Panel podName={podName} />
+  const hint = HINTS[podName]
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <PanelHeader title="Pod Output" hint={hint} style={{ marginBottom: '1vh' }} />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <Panel podName={podName} />
+      </div>
+    </div>
+  )
 }

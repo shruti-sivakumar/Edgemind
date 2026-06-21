@@ -36,7 +36,7 @@ function AlertCard({ alert }) {
   const borderColor = sev === 'critical' ? 'var(--color-danger)' : sev === 'warning' ? 'var(--color-warning)' : 'var(--color-border-secondary)'
 
   return (
-    <div style={{ border: `1px solid ${borderColor}`, borderRadius: 6, padding: '8px 10px', background: 'var(--color-bg-surface)' }}>
+    <div style={{ border: `1px solid ${borderColor}`, borderRadius: 6, padding: '8px 10px', background: 'var(--color-bg-card)', border: '1px solid var(--color-border-card)', boxShadow: '0 1px 3px var(--color-shadow)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5 }}>
         <SeverityBadge severity={sev} />
         <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-primary)', fontFamily: 'monospace' }}>{pumpLabel}</span>
@@ -71,9 +71,8 @@ export default function AlertManagerPanel({ podName }) {
   const alerts = pumpAlerts.slice(0, 8)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, height: '100%', justifyContent: 'center' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 700 }}>ACTIVE PUMP ALERTS</div>
         {alerts.length > 0 && (
           <button
             onClick={() => navigate('/investigate')}

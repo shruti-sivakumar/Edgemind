@@ -13,6 +13,7 @@ export default function GraphEdge({
   routing,
   health = 'unknown',
   isActive = false,
+  noArrow = false,
 }) {
   if (!fromPos || !toPos) return null
   const { x: x1, y: y1 } = fromPos
@@ -55,7 +56,7 @@ export default function GraphEdge({
   } else {
     pathD = `M ${x1} ${y1} L ${tx} ${ty}`
   }
-  const markerEnd = type === 'service'
+  const markerEnd = (type === 'service' && !noArrow)
     ? (isActive ? 'url(#arrow-active)' : `url(#arrow-${health})`)
     : undefined
 

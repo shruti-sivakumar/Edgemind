@@ -84,7 +84,7 @@ export default function PipelineGraph({
   const minX = -50
   const maxX = 780
   const minY = -40
-  const maxY = showMonitoring ? 480 : 320
+  const maxY = showMonitoring ? 420 : 320
   
   const cx = (minX + maxX) / 2
   const cy = (minY + maxY) / 2
@@ -130,6 +130,7 @@ export default function PipelineGraph({
             routing={e.routing}
             health={podHealthMap[e.from] || 'unknown'}
             isActive={causalChain.includes(e.from) && causalChain.includes(e.to)}
+            noArrow={e.noArrow}
           />
         ))}
 
