@@ -30,13 +30,14 @@ export default function CorrelationBracket({ alert: a, xScale, index }) {
           left: xLeft,
           top,
           width,
+          minWidth: 'max-content',
           height: 22,
           background: hovered ? 'var(--color-info-tint)' : 'var(--color-bg-card)',
           border: `1px solid ${hovered ? 'var(--color-info)' : 'rgba(0, 102, 204, 0.3)'}`,
           borderRadius: 11,
           boxShadow: hovered ? '0 2px 8px rgba(0, 102, 204, 0.2)' : '0 1px 3px rgba(0,0,0,0.05)',
           cursor: 'pointer',
-          display: 'flex', alignItems: 'center', paddingLeft: 8,
+          display: 'flex', alignItems: 'center', paddingLeft: 10, paddingRight: 10,
           overflow: 'hidden',
           transition: 'all 0.2s',
           transform: hovered ? 'scale(1.02)' : 'scale(1)',
@@ -44,7 +45,7 @@ export default function CorrelationBracket({ alert: a, xScale, index }) {
         }}
       >
         <span style={{ fontSize: 10, color: 'var(--color-info)', fontWeight: 800, whiteSpace: 'nowrap' }}>
-          {a.alert_type?.slice(0, 18)}
+          {a.alert_type}
           {a.confidence != null ? ` · ${(a.confidence * 100).toFixed(0)}%` : ''}
         </span>
       </div>

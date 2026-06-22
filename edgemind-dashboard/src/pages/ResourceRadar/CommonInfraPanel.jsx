@@ -10,7 +10,7 @@ export default function CommonInfraPanel({ podName, isKubeSystem }) {
   const podFindings = findings.filter(f => f.pod === podName)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1vh', flexShrink: 0 }}>
         <PanelHeader title="Infrastructure Metrics" />
         <div style={{ display: 'flex', gap: 12, fontSize: 11, color: 'var(--color-text-secondary)' }}>
