@@ -497,7 +497,7 @@ pytest batch_sync/tests/ -v             # export state, parquet round-trip
 
 <br/>
 
-**EdgeMind** — built for the ABB Edgenius hackathon.
+**EdgeMind** — built for the ABB Accelerator hackathon.
 *Watching the whole stack, from the outside in.*
 
 <img src="logo.png" alt="EdgeMind" width="80"/>
