@@ -1,5 +1,8 @@
+import { useMemo } from 'react'
 import { useAppState } from '../../core/store/AppContext.jsx'
 import { useDispatch } from '../../core/store/AppContext.jsx'
+import { recentFindings } from '../../core/selectors/correlations.js'
+import { useNow } from '../../core/hooks/useNow.js'
 
 export default function GraphControls({
   showPvcEdges, setShowPvcEdges,
@@ -10,14 +13,17 @@ export default function GraphControls({
 }) {
   const { graph, findings } = useAppState()
   const dispatch = useDispatch()
+  const now = useNow(5000)
 
   const lastRebuild = graph?.timestamp
     ? new Date(graph.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : null
 
-  const criticalCount = findings.filter(f => f.severity === 'critical').length
-  const warningCount  = findings.filter(f => f.severity === 'warning').length
-  const healthyCount  = findings.filter(f => f.severity === 'info' || (f.severity !== 'critical' && f.severity !== 'warning')).length
+  // Count only findings within the TTL window so the badge clears after a fault
+  // recovers, instead of tallying the whole rolling buffer forever.
+  const liveFindings = useMemo(() => recentFindings(findings, now), [findings, now])
+  const criticalCount = liveFindings.filter(f => f.severity === 'critical').length
+  const warningCount  = liveFindings.filter(f => f.severity === 'warning').length
 
   function handleRediscover() {
     fetch('/api/graph').then(r => r.json()).then(data => {

@@ -43,6 +43,7 @@ function getLabel(anomaly_type, windowMs) {
 export default function EventBlock({ finding, xLeft, width, windowMs = 30 * 60 * 1000 }) {
   const [open, setOpen] = useState(false)
   const [hovered, setHovered] = useState(false)
+  const [clickPos, setClickPos] = useState({ x: 0, y: 0 })
   const color = EVENT_BLOCK_COLORS[finding.anomaly_type] || SEVERITY_COLORS[finding.severity] || 'var(--color-info)'
   const w = Math.max(12, width)
   const outlined = ['cpu_throttle', 'pvc_fill', 'data_stale'].includes(finding.anomaly_type)
@@ -55,7 +56,7 @@ export default function EventBlock({ finding, xLeft, width, windowMs = 30 * 60 *
       <div
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
+        onClick={e => { e.stopPropagation(); setClickPos({ x: e.clientX, y: e.clientY }); setOpen(o => !o) }}
         className={isPulse ? 'animate-oom-pulse' : ''}
         title={`${finding.pod} · ${finding.anomaly_type} · ${finding.severity}`}
         style={{
@@ -84,7 +85,7 @@ export default function EventBlock({ finding, xLeft, width, windowMs = 30 * 60 *
         )}
       </div>
       {open && (
-        <EventPopover finding={finding} onClose={() => setOpen(false)} xLeft={xLeft} />
+        <EventPopover finding={finding} onClose={() => setOpen(false)} clickX={clickPos.x} clickY={clickPos.y} />
       )}
     </>
   )

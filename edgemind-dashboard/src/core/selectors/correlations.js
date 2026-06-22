@@ -8,6 +8,16 @@
 
 export const CORRELATION_TTL_MS = 180000  // 3 min of quiet → resolved
 
+// Findings older than the TTL no longer reflect the live system state. The
+// backend never deletes findings (it keeps a rolling buffer), so any view that
+// shows "current health" — graph node colors, critical/warning counts — must
+// filter to this window or it stays red long after a fault recovers.
+export function recentFindings(findings, now = Date.now(), ttlMs = CORRELATION_TTL_MS) {
+  return findings.filter(
+    f => f.timestamp && (now - new Date(f.timestamp).getTime()) < ttlMs
+  )
+}
+
 function matchesPod(findingPod, shortName) {
   return findingPod === shortName || findingPod.startsWith(shortName + '-')
 }

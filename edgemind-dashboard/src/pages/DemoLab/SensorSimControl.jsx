@@ -79,7 +79,7 @@ export default function SensorSimControl({ pumpId, showError, disabled }) {
               background: activeFault ? 'var(--color-warning)' : 'var(--color-success)',
             }} className={activeFault ? 'animate-pulse-dot' : ''} />
             <span style={{ color: activeFault ? 'var(--color-warning)' : 'var(--color-success)' }}>
-              {activeFault ? `FAULT: ${activeFault.toUpperCase()}` : 'RUNNING'}
+              {activeFault ? `FAULT: ${activeFault.toUpperCase()}` : 'NOMINAL'}
             </span>
           </div>
         </div>

@@ -15,19 +15,18 @@ function Row({ label, value }) {
   )
 }
 
-export default function EventPopover({ finding: f, onClose, xLeft }) {
+const POPOVER_W = 300
+const POPOVER_H = 420 // approximate max height
+
+export default function EventPopover({ finding: f, onClose, clickX = 0, clickY = 0 }) {
   const ref = useRef(null)
   const { correlatedAlerts } = useAppState()
-  const [verticalPos, setVerticalPos] = useState({ top: 32, bottom: 'auto' })
 
-  useEffect(() => {
-    if (ref.current) {
-      const rect = ref.current.getBoundingClientRect()
-      if (rect.bottom > window.innerHeight - 20) {
-        setVerticalPos({ top: 'auto', bottom: 28 })
-      }
-    }
-  }, [])
+  // Clamp to viewport so the popover never goes offscreen
+  const left = Math.min(clickX + 8, window.innerWidth - POPOVER_W - 12)
+  const top  = clickY + POPOVER_H > window.innerHeight - 12
+    ? Math.max(8, clickY - POPOVER_H)
+    : clickY + 8
 
   useEffect(() => {
     function handler(e) { if (ref.current && !ref.current.contains(e.target)) onClose() }
@@ -55,11 +54,10 @@ export default function EventPopover({ finding: f, onClose, xLeft }) {
     <div
       ref={ref}
       style={{
-        position: 'absolute',
-        left: Math.max(0, Math.min(Number(xLeft) || 0, 660)),
-        top: verticalPos.top,
-        bottom: verticalPos.bottom,
-        zIndex: 30, width: 300,
+        position: 'fixed',
+        left,
+        top,
+        zIndex: 9999, width: POPOVER_W,
         background: 'var(--color-bg-card)', 
         border: '1px solid var(--color-border-card)',
         borderRadius: 12, padding: 16, 

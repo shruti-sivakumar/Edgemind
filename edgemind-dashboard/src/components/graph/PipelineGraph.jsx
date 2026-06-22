@@ -1,7 +1,7 @@
 import { useMemo, useState, useRef, useEffect } from 'react'
 import { useAppState } from '../../core/store/AppContext.jsx'
 import { findMetrics } from '../../core/selectors/podHealth.js'
-import { latestActiveCorrelation } from '../../core/selectors/correlations.js'
+import { latestActiveCorrelation, recentFindings } from '../../core/selectors/correlations.js'
 import { useNow } from '../../core/hooks/useNow.js'
 import {
   LAYERS, MONITORING_LAYER, PVC_NODES,
@@ -79,13 +79,18 @@ export default function PipelineGraph({
     showMonitoring ? allPods : allPods.filter(pod => !MONITORING_LAYER.includes(pod))
   ), [allPods, showMonitoring])
 
+  // Only findings within the TTL window color the nodes — otherwise stale flood
+  // findings keep pods red long after recovery (same lifecycle the correlations
+  // already use to auto-resolve).
+  const liveFindings = useMemo(() => recentFindings(findings, now), [findings, now])
+
   const podHealthMap = useMemo(() => {
     const map = {}
-    allPods.forEach(pod => { map[pod] = podHealth(findings, pod) })
+    allPods.forEach(pod => { map[pod] = podHealth(liveFindings, pod) })
     return map
-  }, [findings, allPods])
+  }, [liveFindings, allPods])
 
-  const activeFindingPods = useMemo(() => new Set(findings.map(f => f.pod)), [findings])
+  const activeFindingPods = useMemo(() => new Set(liveFindings.map(f => f.pod)), [liveFindings])
 
   // Pods that should actually render when anomalous-only is active
   const visiblePodSet = useMemo(() => {
