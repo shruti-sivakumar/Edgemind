@@ -60,13 +60,13 @@
 
 ---
 
-## 🎯 The Problem
+## The Problem
 
 In an industrial edge deployment, a single pump-station failure rarely stays contained. A bearing fault on one sensor cascades: the data collector spikes, the historian gets overloaded, the feature pipeline starves for CPU, and downstream export services contend for the same disk. By the time an operator sees a dozen red alerts, the real question — **"which one started it?"** — is buried under noise.
 
 Traditional monitoring tells you *what* is on fire. It does not tell you *why*, *in what order*, or *what's about to break next*.
 
-## 💡 The Solution
+## The Solution
 
 EdgeMind adds three layers of intelligence on top of a running Kubernetes workload:
 
