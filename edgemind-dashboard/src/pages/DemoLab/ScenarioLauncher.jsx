@@ -21,7 +21,7 @@ async function _setFill(enabled) {
 }
 
 export default function ScenarioLauncher({ showError }) {
-  const { demoLab } = useAppState()
+  const { demoLab, sensorReadings } = useAppState()
   const dispatch = useDispatch()
   const [currentIndex, setCurrentIndex] = useState(0)
 
@@ -30,7 +30,12 @@ export default function ScenarioLauncher({ showError }) {
   const pump3 = useFaultInjection('pump3')
   const injectors = { pump1, pump2, pump3 }
 
-  const anyActiveFault = Object.values(demoLab.activeFaults || {}).some(Boolean)
+  // A pump-targeted fault can still be live on the backend even after the
+  // in-memory scenario state was wiped (e.g. page refresh). The /status poller
+  // keeps sensorReadings up to date, so use it as the source of truth.
+  const anyActiveFault =
+    Object.values(demoLab.activeFaults || {}).some(Boolean) ||
+    Object.values(sensorReadings || {}).some(r => r?.active_fault)
 
   async function handleLaunch(scenario) {
     // Block launching a second scenario while another fault/scenario is active
@@ -104,18 +109,29 @@ export default function ScenarioLauncher({ showError }) {
           transform: `translateX(-${(currentIndex / SCENARIOS.length) * 100}%)`,
           transition: 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)'
         }}>
-          {SCENARIOS.map(scen => (
-            <div key={scen.id} style={{ width: `${100 / SCENARIOS.length}%`, height: '100%', paddingBottom: 4, paddingRight: 4, paddingLeft: 2 }}>
-              <ScenarioCard
-                scenario={scen}
-                running={demoLab.activeScenarioId === scen.id}
-                completed={demoLab.completedScenarioId === scen.id}
-                disabled={anyActiveFault || (demoLab.activeScenarioId != null && demoLab.activeScenarioId !== scen.id)}
-                onLaunch={() => handleLaunch(scen)}
-                onClear={() => handleClear(scen)}
-              />
-            </div>
-          ))}
+          {SCENARIOS.map(scen => {
+            // Backend fault still live for this scenario's pump? Then treat the
+            // card as running even if the volatile scenario state was lost, so
+            // the Stop button is always reachable while a fault is active.
+            const faultLive = !!(scen.targetPump && sensorReadings?.[scen.targetPump]?.active_fault)
+            const isRunning = demoLab.activeScenarioId === scen.id || faultLive
+            const isCompleted = demoLab.completedScenarioId === scen.id && !faultLive
+            // Never disable the card that owns the active fault, otherwise its
+            // Stop button becomes unclickable (pointerEvents: none).
+            const isDisabled = !isRunning && (anyActiveFault || demoLab.activeScenarioId != null)
+            return (
+              <div key={scen.id} style={{ width: `${100 / SCENARIOS.length}%`, height: '100%', paddingBottom: 4, paddingRight: 4, paddingLeft: 2 }}>
+                <ScenarioCard
+                  scenario={scen}
+                  running={isRunning}
+                  completed={isCompleted}
+                  disabled={isDisabled}
+                  onLaunch={() => handleLaunch(scen)}
+                  onClear={() => handleClear(scen)}
+                />
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>

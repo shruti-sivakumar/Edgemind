@@ -10,6 +10,8 @@ from edgemind_agents.agents.storage_agent import StorageAgent
 from edgemind_agents.agents.network_log_agent import NetworkLogAgent
 from edgemind_agents.anomaly_types import (
     CPU_SPIKE, CPU_THROTTLE,
+    CPU_ROLLING_WINDOW, CPU_SUSTAINED_SPIKE_CYCLES,
+    CPU_SPIKE_MIN_ABS_CORES, CPU_SPIKE_MIN_DELTA_CORES,
     MEMORY_LEAK, NODE_PRESSURE,
     IO_SATURATION, WRITE_BURST, PVC_FILL, PVC_CONTENTION,
     NETWORK_FLOOD, PACKET_DROP, LOG_ERROR_SURGE, PUMP_HEALTH_CRIT,
@@ -151,10 +153,12 @@ async def test_cpu_no_findings_healthy(mock_redis):
 
 async def test_cpu_spike_warning(mock_redis):
     agent = CPUAgent("cpu", asyncio.Queue(), mock_redis)
-    await warm_agent(agent, make_snapshot(), n=25)
+    # Fill the rolling window so the spike doesn't inflate its own mean and decay
+    # its z-score within a couple cycles (mirrors a real sustained spike).
+    await warm_agent(agent, make_snapshot(), n=CPU_ROLLING_WINDOW)
 
-    # 3 cycles of sustained spike: triggers after 2nd cycle (sustained_spike_cycles >= 2)
-    for _ in range(3):
+    # Sustain past CPU_SUSTAINED_SPIKE_CYCLES (4); large delta clears the floor.
+    for _ in range(CPU_SUSTAINED_SPIKE_CYCLES + 2):
         snap = make_snapshot()
         snap.pods["pump-station/opc-ua-collector"].cpu_usage_cores = 0.8
         await agent.process(snap)
@@ -165,17 +169,60 @@ async def test_cpu_spike_warning(mock_redis):
     assert all(f["container"] == "opc-ua-collector" for f in spike_findings)
 
 
-async def test_cpu_spike_requires_two_cycles(mock_redis):
+async def test_cpu_spike_requires_sustained_cycles(mock_redis):
     agent = CPUAgent("cpu", asyncio.Queue(), mock_redis)
-    await warm_agent(agent, make_snapshot(), n=25)
+    await warm_agent(agent, make_snapshot(), n=CPU_ROLLING_WINDOW)
 
-    # A single spike cycle cannot satisfy the 2-cycle sustain requirement
-    snap = make_snapshot()
-    snap.pods["pump-station/opc-ua-collector"].cpu_usage_cores = 0.8
-    await agent.process(snap)
+    # Fewer than CPU_SUSTAINED_SPIKE_CYCLES (4) cannot fire — this is what
+    # suppresses the brief (~3-cycle) idle-pod false positives.
+    for _ in range(CPU_SUSTAINED_SPIKE_CYCLES - 1):
+        snap = make_snapshot()
+        snap.pods["pump-station/opc-ua-collector"].cpu_usage_cores = 0.8
+        await agent.process(snap)
 
     spike_findings = [f for f in mock_redis.get_findings() if f["anomaly_type"] == CPU_SPIKE]
     assert len(spike_findings) == 0
+
+
+async def test_cpu_spike_idle_pod_below_abs_floor_suppressed(mock_redis):
+    # The false-positive case: an idle service (alert-manager-like) with a tiny
+    # std, so a bump yields a huge z-score — but absolute CPU stays below
+    # CPU_SPIKE_MIN_ABS_CORES, so it must NOT fire.
+    agent = CPUAgent("cpu", asyncio.Queue(), mock_redis)
+    for i in range(CPU_ROLLING_WINDOW):
+        snap = make_snapshot()
+        snap.pods["pump-station/opc-ua-collector"].cpu_usage_cores = 0.002 + (0.0005 if i % 2 else 0.0)
+        await agent.process(snap)
+
+    # Jump to 0.008: large relative spike (huge z) but below the 0.010 abs floor.
+    assert 0.008 < CPU_SPIKE_MIN_ABS_CORES
+    for _ in range(CPU_SUSTAINED_SPIKE_CYCLES + 2):
+        snap = make_snapshot()
+        snap.pods["pump-station/opc-ua-collector"].cpu_usage_cores = 0.008
+        await agent.process(snap)
+
+    spike_findings = [f for f in mock_redis.get_findings() if f["anomaly_type"] == CPU_SPIKE]
+    assert len(spike_findings) == 0
+
+
+async def test_cpu_spike_modest_rise_above_abs_floor_fires(mock_redis):
+    # The flood-cascade case z-scoring missed: meaningful absolute CPU with a
+    # noisy baseline (so z stays low) and a modest ~2x rise. Must fire via the
+    # absolute gate (collector floods 0.011 -> ~0.022 cores, z~1.4).
+    agent = CPUAgent("cpu", asyncio.Queue(), mock_redis)
+    for i in range(CPU_ROLLING_WINDOW):
+        snap = make_snapshot()
+        snap.pods["pump-station/opc-ua-collector"].cpu_usage_cores = 0.011 + (0.004 if i % 2 else -0.004)
+        await agent.process(snap)
+
+    for _ in range(CPU_SUSTAINED_SPIKE_CYCLES + 2):
+        snap = make_snapshot()
+        snap.pods["pump-station/opc-ua-collector"].cpu_usage_cores = 0.022
+        await agent.process(snap)
+
+    spike_findings = [f for f in mock_redis.get_findings() if f["anomaly_type"] == CPU_SPIKE]
+    assert len(spike_findings) > 0
+    assert all(f["container"] == "opc-ua-collector" for f in spike_findings)
 
 
 async def test_cpu_throttle(mock_redis):
@@ -500,10 +547,10 @@ async def test_finding_schema_complete(mock_redis, mock_k8s):
         "finding_id", "agent", "timestamp", "anomaly_type", "severity",
         "current_value", "evidence", "affected_pods", "pvc_name", "eta_minutes"
     }
-    # Trigger CPU spike finding
+    # Trigger CPU spike finding (fill window, sustain past the cycle gate)
     agent = CPUAgent("cpu", asyncio.Queue(), mock_redis)
-    await warm_agent(agent, make_snapshot(), n=25)
-    for _ in range(3):
+    await warm_agent(agent, make_snapshot(), n=CPU_ROLLING_WINDOW)
+    for _ in range(CPU_SUSTAINED_SPIKE_CYCLES + 2):
         snap = make_snapshot()
         snap.pods["pump-station/opc-ua-collector"].cpu_usage_cores = 0.8
         await agent.process(snap)

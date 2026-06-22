@@ -63,9 +63,23 @@ COLLECT_INTERVAL_S = 15
 STARTUP_OFFSET_S = 5
 QUERY_TIMEOUT_S = 5
 
-# CPU thresholds
+# CPU thresholds. z-score is kept only for severity grading — NOT as the spike
+# gate. Measured rationale: near-idle services (alert-manager, health-scorer at
+# <0.005 cores) have a tiny rolling std, so a trivial periodic bump yields a huge
+# z-score → false cpu_spike (the recurring false positive). Conversely a real
+# flood only pushes opc-ua-collector ~2x (0.011→0.0225 cores), which against its
+# naturally noisy baseline (std ~0.005) gives z~1.4 — well below any z threshold.
+# So z separates neither case correctly. The reliable discriminator is absolute:
+# a pod must use meaningful CPU AND rise materially above its own baseline.
 CPU_SPIKE_WARNING_Z = 3.0
 CPU_SPIKE_CRITICAL_Z = 4.0
+# Pod must currently use at least this many cores to be spike-eligible. Excludes
+# the entire class of idle services (all <0.005 cores) that caused false spikes;
+# opc-ua-collector floods to ~0.0225 cores, well above this.
+CPU_SPIKE_MIN_ABS_CORES = 0.010
+# Required rise above the rolling-window baseline (z-independent). Collector
+# flood delta is ~0.007 (busy window) to ~0.012 (clean); idle bumps are <0.003.
+CPU_SPIKE_MIN_DELTA_CORES = 0.005
 CPU_THROTTLE_RATIO = 0.20
 CPU_THROTTLE_CYCLES = 3
 CPU_ROLLING_WINDOW = 75
@@ -85,7 +99,12 @@ MEM_REGRESSION_WINDOW = 20
 MEM_WARMUP_MIN = 20
 
 # CPU detection tuning
-CPU_SUSTAINED_SPIKE_CYCLES = 2
+# 3 cycles (45s). False-positive suppression now comes from the absolute gates
+# (CPU_SPIKE_MIN_ABS_CORES + CPU_SPIKE_MIN_DELTA_CORES), so this only needs to
+# reject brief transients while staying fast enough for the collector spike to
+# join the flood-cascade correlation window. The collector holds elevated for
+# minutes, so 3 is easily reached.
+CPU_SUSTAINED_SPIKE_CYCLES = 3
 CPU_RESTART_SUPPRESS_CYCLES = 3
 
 # Memory detection tuning

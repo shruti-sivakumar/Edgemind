@@ -118,21 +118,4 @@ export const SCENARIOS = [
       { id: 'corr',      label: 'Correlated alert from orchestrator',       anomalyType: null,               pod: null, waitForAlert: true },
     ],
   },
-  {
-    id: 5,
-    title: 'Full Multi-Agent Scenario',
-    description: 'Combined flood + bearing fault triggers all 4 agents simultaneously',
-    faultMode: 'flood',
-    targetPump: 'pump2',
-    targetSensor: 'sensor-sim-2',
-    expectedAgents: ['cpu', 'memory', 'storage', 'network_log'],
-    expectedDuration: '5–8 min',
-    steps: [
-      { id: 'inject',    label: 'Flood + bearing fault on pump2',          anomalyType: null,               pod: null },
-      { id: 'net_flood', label: 'network_flood on sensor-sim-2',            anomalyType: 'network_flood',    pod: 'sensor-sim-2' },
-      { id: 'cpu_spike', label: 'cpu_spike on opc-ua-collector',             anomalyType: 'cpu_spike',        pod: 'opc-ua-collector' },
-      { id: 'health',    label: 'pump_health_critical on health-scorer',     anomalyType: 'pump_health_critical', pod: 'health-scorer' },
-      { id: 'corr',      label: 'Multi-agent correlated alert',              anomalyType: null,               pod: null, waitForAlert: true },
-    ],
-  },
 ]

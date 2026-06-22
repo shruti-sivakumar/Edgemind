@@ -34,10 +34,16 @@ MIN_AGENTS_FOR_TRIGGER = 2   # 2+ different agents = trigger
 # Only these anomaly types bypass multi-agent requirement when critical.
 # Noisy transient types (volume_mount_failure, log_error_surge) require corroboration.
 
+# cpu_spike and network_flood are intentionally excluded — both are relative-
+# threshold detectors that false-positive on near-idle pods (cpu_spike: z-score
+# blows up on tiny std; network_flood: fires on a 2x bump even at ~0 MB/s, e.g.
+# feature-extractor's periodic InfluxDB reads). They must be corroborated by
+# another agent to trigger. The flood cascade still fires because it produces
+# both network_flood AND cpu_spike (network_log + cpu = 2 agents → multi_agent).
 CRITICAL_ANOMALY_TYPES_IMMEDIATE = {
     "oomkill_detected", "k8s_oomkill",
-    "cpu_spike", "memory_leak", "pvc_fill",
-    "network_flood", "io_saturation",
+    "memory_leak", "pvc_fill",
+    "io_saturation",
 }
 
 # Only findings from these namespaces are considered
@@ -46,8 +52,8 @@ MONITORED_NAMESPACES = {"pump-station"}
 SINGLE_AGENT_SUFFICIENT = {
     "pump_health_critical",
     "oomkill_detected", "k8s_oomkill",
-    "cpu_spike", "memory_leak",
-    "network_flood", "io_saturation",
+    "memory_leak",
+    "io_saturation",
 }
 
 

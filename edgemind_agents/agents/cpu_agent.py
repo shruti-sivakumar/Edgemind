@@ -10,6 +10,7 @@ from edgemind_agents.anomaly_types import (
     CPU_SPIKE, CPU_THROTTLE, CPU_CONTENTION,
     SEV_WARNING, SEV_CRITICAL,
     CPU_SPIKE_WARNING_Z, CPU_SPIKE_CRITICAL_Z,
+    CPU_SPIKE_MIN_ABS_CORES, CPU_SPIKE_MIN_DELTA_CORES,
     CPU_THROTTLE_RATIO, CPU_THROTTLE_CYCLES,
     CPU_ROLLING_WINDOW, CPU_WARMUP_MIN,
     CPU_SUSTAINED_SPIKE_CYCLES, CPU_RESTART_SUPPRESS_CYCLES,
@@ -77,12 +78,15 @@ class CPUAgent(BaseAgent):
             mean = arr.mean()
             std = arr.std()
 
-            # Z-score spike detection
+            # Spike gate is absolute, not z-score based. A z-score explodes on
+            # near-idle pods (tiny std → false spikes) yet stays low for a real
+            # but modest spike on a noisy pod (e.g. the collector flooding ~2x,
+            # z~1.4). So require: meaningful absolute CPU usage AND a material
+            # rise above the rolling baseline. z is computed only for severity.
             z = (pod.cpu_usage_cores - mean) / std if std > 0 else 0.0
+            delta = pod.cpu_usage_cores - mean
 
-            if z >= CPU_SPIKE_CRITICAL_Z:
-                state.sustained_spike_cycles += 1
-            elif z >= CPU_SPIKE_WARNING_Z:
+            if pod.cpu_usage_cores >= CPU_SPIKE_MIN_ABS_CORES and delta >= CPU_SPIKE_MIN_DELTA_CORES:
                 state.sustained_spike_cycles += 1
             else:
                 state.sustained_spike_cycles = 0
