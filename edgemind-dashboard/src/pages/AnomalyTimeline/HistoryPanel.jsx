@@ -1,4 +1,4 @@
-﻿import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useAppState } from '../../core/store/AppContext.jsx'
 import SeverityBadge from '../../components/ui/SeverityBadge.jsx'
 import AgentTag from '../../components/ui/AgentTag.jsx'
@@ -103,12 +103,35 @@ export default function HistoryPanel({ typeFilter = 'all', nsFilter = '', window
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', borderTop: '1px solid var(--color-border-card)', position: 'relative' }}>
+      <style>{`
+        .history-row {
+          background: var(--color-bg-card);
+          transition: background 0.15s ease;
+        }
+        .history-row:hover {
+          background: var(--color-bg-card-hover);
+        }
+        .details-btn {
+          font-size: 11px;
+          font-weight: 600;
+          color: var(--color-info);
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          opacity: 0.8;
+          transition: opacity 0.2s;
+        }
+        .details-btn:hover {
+          opacity: 1;
+          text-decoration: underline;
+        }
+      `}</style>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '6px 16px', background: 'var(--color-bg-surface)', borderBottom: '1px solid var(--color-border-card)' }}>
-        <span style={{ fontSize: 11, color: 'var(--color-text-secondary)' }}>{total} event{total !== 1 ? 's' : ''}</span>
+        <span style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontWeight: 600 }}>{total} EVENT{total !== 1 ? 'S' : ''}</span>
         <span style={{ flex: 1 }} />
         <button
           onClick={() => exportCsv(sorted)}
-          style={{ fontSize: 11, padding: '2px 10px', borderRadius: 4, cursor: 'pointer', background: 'transparent', color: 'var(--color-info)', border: '1px solid var(--color-info)' }}
+          style={{ fontSize: 11, fontWeight: 600, padding: '2px 10px', borderRadius: 4, cursor: 'pointer', background: 'transparent', color: 'var(--color-info)', border: '1px solid var(--color-info)', transition: 'all 0.2s' }}
         >
           ↓ Export CSV
         </button>
@@ -118,8 +141,8 @@ export default function HistoryPanel({ typeFilter = 'all', nsFilter = '', window
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--color-border-card)', background: 'var(--color-bg-surface)' }}>
-              {['Time', 'Namespace', 'Pod', 'Agent', 'Severity', 'Anomaly Type', 'Metric', 'Value', 'Deviation', 'Correlated', 'Details'].map(h => (
-                <th key={h} style={{ padding: '4px 8px', textAlign: 'left', color: 'var(--color-text-tertiary)', fontWeight: 700, whiteSpace: 'nowrap' }}>{h}</th>
+              {['Time', 'Namespace', 'Pod', 'Agent', 'Severity', 'Anomaly Type', 'Metric', 'Value', 'Deviation', 'Correlated', ''].map(h => (
+                <th key={h} style={{ padding: '8px', textAlign: 'left', color: 'var(--color-text-tertiary)', fontWeight: 700, whiteSpace: 'nowrap', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -127,38 +150,34 @@ export default function HistoryPanel({ typeFilter = 'all', nsFilter = '', window
             {pageRows.map((row, i) => {
               if (row._rowType === 'alert') {
                 return (
-                  <tr key={`a-${i}`} style={{
+                  <tr key={`a-${i}`} className="history-row" style={{
                     borderBottom: '1px solid var(--color-border-card)',
-                    background: 'var(--color-info-tint)',
-                    borderLeft: '3px solid rgba(0,76,151,0.35)',
+                    borderLeft: '3px solid var(--color-info)',
                   }}>
-                    <td style={{ padding: '4px 8px', color: 'var(--color-text-tertiary)', whiteSpace: 'nowrap' }} title={fmtAbs(row.timestamp)}>
+                    <td style={{ padding: '8px', color: 'var(--color-text-tertiary)', whiteSpace: 'nowrap' }} title={fmtAbs(row.timestamp)}>
                       {fmtRelative(row.timestamp)}
                     </td>
-                    <td style={{ padding: '4px 8px', color: 'var(--color-text-tertiary)' }}>monitoring</td>
-                    <td style={{ padding: '4px 8px' }}><PodLabel pod={row.root_cause_pod || 'orchestrator'} /></td>
-                    <td style={{ padding: '4px 8px' }}><AgentTag agent="orchestrator" /></td>
-                    <td style={{ padding: '4px 8px' }}><SeverityBadge severity={row.severity} /></td>
-                    <td style={{ padding: '4px 8px' }}>
+                    <td style={{ padding: '8px', color: 'var(--color-text-tertiary)' }}>monitoring</td>
+                    <td style={{ padding: '8px' }}><PodLabel pod={row.root_cause_pod || 'orchestrator'} /></td>
+                    <td style={{ padding: '8px' }}><AgentTag agent="orchestrator" /></td>
+                    <td style={{ padding: '8px' }}><SeverityBadge severity={row.severity} /></td>
+                    <td style={{ padding: '8px' }}>
                       <span style={{ color: 'var(--color-info)', fontWeight: 700 }}>{row.alert_type}</span>
                       <span style={{ fontSize: 9, marginLeft: 4, color: 'var(--color-text-tertiary)' }}>CORR</span>
                     </td>
-                    <td style={{ padding: '4px 8px', color: 'var(--color-text-tertiary)' }}>{row.root_cause_metric || '-'}</td>
-                    <td style={{ padding: '4px 8px', color: 'var(--color-text-secondary)', fontVariantNumeric: 'tabular-nums' }}>
+                    <td style={{ padding: '8px', color: 'var(--color-text-tertiary)' }}>{row.root_cause_metric || '-'}</td>
+                    <td style={{ padding: '8px', color: 'var(--color-text-secondary)', fontVariantNumeric: 'tabular-nums' }}>
                       {row.confidence != null ? `${(row.confidence * 100).toFixed(0)}% conf` : '-'}
                     </td>
-                    <td style={{ padding: '4px 8px', color: 'var(--color-text-tertiary)' }}>
+                    <td style={{ padding: '8px', color: 'var(--color-text-tertiary)' }}>
                       {row.causal_chain?.length ? `${row.causal_chain.length} pods` : '-'}
                     </td>
-                    <td style={{ padding: '4px 8px', color: 'var(--color-info)' }}>
+                    <td style={{ padding: '8px', color: 'var(--color-info)', fontWeight: 600 }}>
                       {row.finding_ids?.length ? `${row.finding_ids.length} findings` : '-'}
                     </td>
-                    <td style={{ padding: '4px 8px' }}>
-                      <button
-                        onClick={() => setSelected(row)}
-                        style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', background: 'transparent', color: 'var(--color-info)', border: '1px solid var(--color-info)' }}
-                      >
-                        View
+                    <td style={{ padding: '8px', textAlign: 'right' }}>
+                      <button className="details-btn" onClick={() => setSelected(row)}>
+                        View Details →
                       </button>
                     </td>
                   </tr>
@@ -169,31 +188,27 @@ export default function HistoryPanel({ typeFilter = 'all', nsFilter = '', window
               const f = row
               const corrId = f.correlated_alert_id || f.correlated_id
               return (
-                <tr key={`f-${i}`} style={{
+                <tr key={`f-${i}`} className="history-row" style={{
                   borderBottom: '1px solid var(--color-border-card)',
-                  background: f.severity === 'critical' ? 'var(--color-danger-tint)' : f.severity === 'warning' ? 'var(--color-warning-tint)' : 'transparent',
                   borderLeft: corrId ? '3px solid var(--color-info)' : '3px solid transparent',
                 }}>
-                  <td style={{ padding: '4px 8px', color: 'var(--color-text-tertiary)', whiteSpace: 'nowrap' }} title={fmtAbs(f.timestamp)}>
+                  <td style={{ padding: '8px', color: 'var(--color-text-tertiary)', whiteSpace: 'nowrap' }} title={fmtAbs(f.timestamp)}>
                     {fmtRelative(f.timestamp)}
                   </td>
-                  <td style={{ padding: '4px 8px', color: 'var(--color-text-tertiary)' }}>{f.namespace || '-'}</td>
-                  <td style={{ padding: '4px 8px' }}><PodLabel pod={f.pod} /></td>
-                  <td style={{ padding: '4px 8px' }}><AgentTag agent={f.agent} /></td>
-                  <td style={{ padding: '4px 8px' }}><SeverityBadge severity={f.severity} /></td>
-                  <td style={{ padding: '4px 8px', color: 'var(--color-text-secondary)' }}>{f.anomaly_type}</td>
-                  <td style={{ padding: '4px 8px', color: 'var(--color-text-tertiary)' }}>{getMetric(f)}</td>
-                  <td style={{ padding: '4px 8px', color: 'var(--color-text-secondary)' }}>{String(getValue(f))}</td>
-                  <td style={{ padding: '4px 8px', color: 'var(--color-text-tertiary)' }}>{String(getDeviation(f))}</td>
-                  <td style={{ padding: '4px 8px', color: corrId ? 'var(--color-info)' : 'var(--color-text-tertiary)' }}>
-                    {corrId ? String(corrId).slice(0, 8) : '-'}
+                  <td style={{ padding: '8px', color: 'var(--color-text-tertiary)' }}>{f.namespace || '-'}</td>
+                  <td style={{ padding: '8px' }}><PodLabel pod={f.pod} /></td>
+                  <td style={{ padding: '8px' }}><AgentTag agent={f.agent} /></td>
+                  <td style={{ padding: '8px' }}><SeverityBadge severity={f.severity} /></td>
+                  <td style={{ padding: '8px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>{f.anomaly_type}</td>
+                  <td style={{ padding: '8px', color: 'var(--color-text-tertiary)' }}>{getMetric(f)}</td>
+                  <td style={{ padding: '8px', color: 'var(--color-text-secondary)' }}>{String(getValue(f))}</td>
+                  <td style={{ padding: '8px', color: 'var(--color-text-tertiary)' }}>{String(getDeviation(f))}</td>
+                  <td style={{ padding: '8px', color: corrId ? 'var(--color-info)' : 'var(--color-text-tertiary)' }}>
+                    {corrId ? 'Linked' : '-'}
                   </td>
-                  <td style={{ padding: '4px 8px' }}>
-                    <button
-                      onClick={() => setSelected(f)}
-                      style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', background: 'transparent', color: 'var(--color-info)', border: '1px solid var(--color-info)' }}
-                    >
-                      Open
+                  <td style={{ padding: '8px', textAlign: 'right' }}>
+                    <button className="details-btn" onClick={() => setSelected(f)}>
+                      Details →
                     </button>
                   </td>
                 </tr>
@@ -204,23 +219,23 @@ export default function HistoryPanel({ typeFilter = 'all', nsFilter = '', window
       </div>
 
       {pages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 8, padding: 8 }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 8, padding: 12 }}>
           <button
             onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}
-            style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: page === 0 ? 'not-allowed' : 'pointer', background: 'transparent', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border-primary)', opacity: page === 0 ? 0.4 : 1 }}
+            style={{ fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 4, cursor: page === 0 ? 'not-allowed' : 'pointer', background: 'var(--color-bg-card)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border-primary)', opacity: page === 0 ? 0.4 : 1, transition: 'all 0.2s' }}
           >Prev</button>
-          <span style={{ fontSize: 11, color: 'var(--color-text-secondary)', alignSelf: 'center' }}>{page + 1} / {pages}</span>
+          <span style={{ fontSize: 11, color: 'var(--color-text-secondary)', alignSelf: 'center', fontWeight: 600 }}>{page + 1} / {pages}</span>
           <button
             onClick={() => setPage(p => Math.min(pages - 1, p + 1))} disabled={page === pages - 1}
-            style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: page === pages - 1 ? 'not-allowed' : 'pointer', background: 'transparent', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border-primary)', opacity: page === pages - 1 ? 0.4 : 1 }}
+            style={{ fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 4, cursor: page === pages - 1 ? 'not-allowed' : 'pointer', background: 'var(--color-bg-card)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border-primary)', opacity: page === pages - 1 ? 0.4 : 1, transition: 'all 0.2s' }}
           >Next</button>
         </div>
       )}
 
       {/* Popover for selected row */}
       {selected && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 45 }} onClick={() => setSelected(null)}>
-          <div style={{ position: 'absolute', left: '50%', top: '48%', transform: 'translate(-50%, -50%)' }} onClick={e => e.stopPropagation()}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 45, background: 'rgba(0,0,0,0.1)', backdropFilter: 'blur(2px)' }} onClick={() => setSelected(null)}>
+          <div style={{ position: 'absolute', left: '50%', top: '48%', transform: 'translate(-50%, -50%)', filter: 'drop-shadow(0 8px 32px rgba(0,0,0,0.15))' }} onClick={e => e.stopPropagation()}>
             {selected._rowType === 'alert'
               ? <AlertBracketPopover alert={selected} onClose={() => setSelected(null)} />
               : <EventPopover finding={selected} onClose={() => setSelected(null)} xLeft={0} />

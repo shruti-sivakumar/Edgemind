@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useAppState } from '../../core/store/AppContext.jsx'
 import ActiveAlertsBanner from './ActiveAlertsBanner.jsx'
 import IncidentList from './IncidentList.jsx'
@@ -18,7 +18,7 @@ export default function AIInvestigation() {
   }, [correlatedAlerts, selectedId])
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
       <ActiveAlertsBanner />
 
       <div style={{ flex: 1, overflow: 'hidden', display: 'flex' }}>

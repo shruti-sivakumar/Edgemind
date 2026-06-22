@@ -13,6 +13,7 @@ export default function StackedAreaChart({
   colorRx = 'var(--color-success)',
   unit = ' B/s',
   height = 80,
+  style,
 }) {
   const maxLen = Math.max(dataTx.length, dataRx.length)
   const chartData = Array.from({ length: maxLen }, (_, i) => ({
@@ -22,7 +23,8 @@ export default function StackedAreaChart({
   }))
 
   return (
-    <ResponsiveContainer width="100%" height={height}>
+    <div style={{ flex: 1, minHeight: 0, ...style }}>
+      <ResponsiveContainer width="100%" height={height}>
       <AreaChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
         <XAxis dataKey="i" hide />
         <YAxis hide domain={[0, 'auto']} />
@@ -34,6 +36,7 @@ export default function StackedAreaChart({
         <Area type="monotone" dataKey="tx" name="TX" stroke={colorTx} fill={colorTx} fillOpacity={0.2} strokeWidth={1.5} dot={false} isAnimationActive={false} />
         <Area type="monotone" dataKey="rx" name="RX" stroke={colorRx} fill={colorRx} fillOpacity={0.2} strokeWidth={1.5} dot={false} isAnimationActive={false} />
       </AreaChart>
-    </ResponsiveContainer>
+      </ResponsiveContainer>
+    </div>
   )
 }

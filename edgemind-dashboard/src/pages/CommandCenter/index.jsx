@@ -43,7 +43,7 @@ export default function CommandCenter() {
         >
           <PanelHeader title="Anomaly Propagation Graph" hint="click to expand →" />
           <div style={{ overflowX: 'auto', pointerEvents: 'none', marginTop: 8, display: 'flex', justifyContent: 'center' }}>
-            <PipelineGraph />
+            <PipelineGraph showMonitoring={false} />
           </div>
         </div>
 

@@ -1,4 +1,4 @@
-﻿import { useMemo, useState, useRef, useEffect } from 'react'
+import { useMemo, useState, useRef, useEffect } from 'react'
 import { scaleTime } from 'd3'
 import { useAppState } from '../../core/store/AppContext.jsx'
 import { PUMP_STATION_PODS, MONITORING_PODS, POD_NAMESPACES } from '../../core/constants/pods.js'
@@ -88,19 +88,27 @@ export default function TimelineCanvas({ windowMs, typeFilter, nsFilter, paused,
   return (
     <div ref={containerRef} style={{ overflowX: 'auto', overflowY: 'auto', flex: 1 }}>
       <TimeAxis xScale={xScale} ticks={ticks} />
-      {eventCount === 0 && (
-        <div style={{ padding: '16px 16px 10px', marginLeft: LABEL_WIDTH }}>
-          <EmptyNominal />
-        </div>
-      )}
-
+      <style>{`
+        .timeline-ns-group {
+          margin-bottom: 12px;
+          border-radius: 8px;
+          background: var(--color-bg-card);
+          overflow: hidden;
+        }
+        .timeline-pod-row {
+          transition: background 0.15s ease;
+        }
+        .timeline-pod-row:hover {
+          background: var(--color-bg-card-hover);
+        }
+      `}</style>
       <div style={{ position: 'relative', minWidth: canvasWidth + LABEL_WIDTH }}>
         {NS_ORDER.filter(ns => !nsFilter || ns === nsFilter).map(ns => {
           const pods = podsByNs[ns] || []
           const isCollapsed = collapsed[ns]
 
           return (
-            <div key={ns}>
+            <div key={ns} className="timeline-ns-group">
               <div style={{ display: 'flex' }}>
                 <div style={{ width: LABEL_WIDTH, flexShrink: 0 }}>
                   <NamespaceHeader
@@ -113,7 +121,7 @@ export default function TimelineCanvas({ windowMs, typeFilter, nsFilter, paused,
               </div>
 
               {!isCollapsed && pods.map(pod => (
-                <div key={pod} style={{ display: 'flex', alignItems: 'stretch' }}>
+                <div key={pod} className="timeline-pod-row" style={{ display: 'flex', alignItems: 'stretch' }}>
                   <div style={{
                     width: LABEL_WIDTH, flexShrink: 0, height: ROW_HEIGHT,
                     display: 'flex', alignItems: 'center', padding: '0 8px',

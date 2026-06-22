@@ -1,31 +1,46 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Html } from '@react-three/drei'
 import IsoZoneBadge from '../../../components/ui/IsoZoneBadge.jsx'
 
-function FloatingCard({ position, title, value, unit, warn, children }) {
+function FloatingCard({ position, title, value, unit, warn, children, pumpColor, isDimmed, onHover, onLeave }) {
+  const hex = pumpColor || '#3b82f6';
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  
+  const bg = warn ? 'var(--color-danger-tint)' : `rgba(${r}, ${g}, ${b}, 0.12)`;
+  const borderCol = warn ? 'var(--color-danger-border)' : `rgba(${r}, ${g}, ${b}, 0.3)`;
+
   return (
-    <Html position={position} center>
-      <div style={{
-        background: 'var(--color-bg-card)',
-        backdropFilter: 'blur(10px)',
-        border: `1px solid ${warn ? 'var(--color-warning)' : 'var(--color-border-card)'}`,
+    <Html position={position} center zIndexRange={[100, 0]}>
+      <div 
+        onMouseEnter={onHover}
+        onMouseLeave={onLeave}
+        style={{
+        background: bg,
+        backdropFilter: 'blur(8px)',
+        border: `1px solid ${borderCol}`,
         borderRadius: 6,
-        padding: '6px 12px',
+        padding: '4px 8px',
         color: 'var(--color-text-primary)',
         whiteSpace: 'nowrap',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: 2,
-        pointerEvents: 'none',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
-        minWidth: 100,
+        gap: 1,
+        pointerEvents: 'auto',
+        boxShadow: isDimmed ? 'none' : '0 4px 12px rgba(0,0,0,0.15)',
+        minWidth: 80,
+        opacity: isDimmed ? 0.25 : 1,
+        transform: isDimmed ? 'scale(0.95)' : 'scale(1)',
+        transition: 'opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease',
+        cursor: 'default',
       }}>
-        <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>
+        <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase' }}>
           {title}
         </div>
-        <div style={{ fontSize: 13, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: warn ? 'var(--color-warning)' : 'var(--color-text-primary)' }}>
+        <div style={{ fontSize: 12, fontWeight: 800, fontVariantNumeric: 'tabular-nums', color: warn ? 'var(--color-danger)' : 'var(--color-text-primary)' }}>
           {value != null ? `${Number(value).toFixed(2)} ${unit}` : '—'}
         </div>
         {children}
@@ -189,9 +204,19 @@ function IndustrialPump({ rpm, pumpId }) {
 }
 
 export default function Pump3DScene({ readings, activeFault, pumpId }) {
+  const [hoveredCard, setHoveredCard] = useState(null);
+
+  const pumpColors = {
+    pump1: '#3b82f6', // blue
+    pump2: '#10b981', // green
+    pump3: '#f59e0b', // orange
+    pump4: '#8b5cf6', // purple
+  };
+  const pColor = pumpColors[pumpId] || '#3b82f6';
+
   return (
-    <div style={{ height: 400, position: 'relative', background: 'var(--color-bg-surface)', borderRadius: 8, overflow: 'hidden' }}>
-      <Canvas camera={{ position: [5, 4, 6], fov: 45 }}>
+    <div style={{ flex: 1, minHeight: 0, position: 'relative', background: 'var(--color-bg-surface)', borderRadius: 8, overflow: 'hidden' }}>
+      <Canvas camera={{ position: [7, 5.5, 8], fov: 45 }}>
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 10, 5]} intensity={1} />
         
@@ -201,21 +226,41 @@ export default function Pump3DScene({ readings, activeFault, pumpId }) {
 
         <group>
           {/* Motor Back - Vibration Axial (Shifted left) */}
-          <FloatingCard position={[-2.0, 1.5, -2.5]} title="Vibration Axial" value={readings.vibration_axial} unit="mm/s">
+          <FloatingCard 
+            position={[-2.0, 1.5, -2.5]} title="Vibration Axial" value={readings.vibration_axial} unit="mm/s"
+            pumpColor={pColor} isDimmed={hoveredCard && hoveredCard !== 'Vibration Axial'} 
+            onHover={() => setHoveredCard('Vibration Axial')} onLeave={() => setHoveredCard(null)}
+          >
              <div style={{ marginTop: 2 }}><IsoZoneBadge mmPerS={readings.vibration_axial} /></div>
           </FloatingCard>
           
           {/* Motor Top - Vibration Radial (Shifted right) */}
-          <FloatingCard position={[2.0, 1.5, -1.0]} title="Vibration Radial" value={readings.vibration_radial} unit="mm/s" />
+          <FloatingCard 
+            position={[2.0, 1.5, -1.0]} title="Vibration Radial" value={readings.vibration_radial} unit="mm/s"
+            pumpColor={pColor} isDimmed={hoveredCard && hoveredCard !== 'Vibration Radial'} 
+            onHover={() => setHoveredCard('Vibration Radial')} onLeave={() => setHoveredCard(null)}
+          />
           
           {/* Volute Top - Vibration Tangential */}
-          <FloatingCard position={[0, 3.2, 0.5]} title="Vibration Tang" value={readings.vibration_tangential} unit="mm/s" />
+          <FloatingCard 
+            position={[0, 3.2, 0.5]} title="Vibration Tang" value={readings.vibration_tangential} unit="mm/s"
+            pumpColor={pColor} isDimmed={hoveredCard && hoveredCard !== 'Vibration Tang'} 
+            onHover={() => setHoveredCard('Vibration Tang')} onLeave={() => setHoveredCard(null)}
+          />
           
           {/* Volute Side/Bottom - Temperature */}
-          <FloatingCard position={[1.8, -1.2, 0.5]} title="Temperature" value={readings.temperature} unit="°C" warn={readings.temperature > 80} />
+          <FloatingCard 
+            position={[1.8, -1.2, 0.5]} title="Temperature" value={readings.temperature} unit="°C" warn={readings.temperature > 80}
+            pumpColor={pColor} isDimmed={hoveredCard && hoveredCard !== 'Temperature'} 
+            onHover={() => setHoveredCard('Temperature')} onLeave={() => setHoveredCard(null)}
+          />
           
           {/* Turbine Side - RPM */}
-          <FloatingCard position={[1.5, 0.5, 2.0]} title="RPM" value={readings.rpm} unit="rpm" />
+          <FloatingCard 
+            position={[1.5, 0.5, 2.0]} title="RPM" value={readings.rpm} unit="rpm"
+            pumpColor={pColor} isDimmed={hoveredCard && hoveredCard !== 'RPM'} 
+            onHover={() => setHoveredCard('RPM')} onLeave={() => setHoveredCard(null)}
+          />
         </group>
       </Canvas>
       

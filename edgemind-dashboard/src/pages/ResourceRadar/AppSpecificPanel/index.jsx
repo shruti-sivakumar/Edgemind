@@ -47,9 +47,11 @@ export default function AppSpecificPanel({ podName }) {
   const hint = HINTS[podName]
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <PanelHeader title="Pod Output" hint={hint} style={{ marginBottom: '1vh' }} />
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+      <div style={{ marginBottom: '1vh', flexShrink: 0 }}>
+        <PanelHeader title="Pod Output" hint={hint} />
+      </div>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
         <Panel podName={podName} />
       </div>
     </div>

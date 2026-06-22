@@ -11,7 +11,7 @@ export default function CommonInfraPanel({ podName, isKubeSystem }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1vh' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1vh', flexShrink: 0 }}>
         <PanelHeader title="Infrastructure Metrics" />
         <div style={{ display: 'flex', gap: 12, fontSize: 11, color: 'var(--color-text-secondary)' }}>
           <span>Status: <span style={{ color: 'var(--color-success)' }}>Running</span></span>

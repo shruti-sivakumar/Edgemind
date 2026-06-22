@@ -19,7 +19,7 @@ export default function Shell({ children }) {
   const isEdgeToEdge = ['/radar', '/graph', '/timeline', '/demo'].includes(location.pathname)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', position: 'relative' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', position: 'relative' }}>
       <DataHooks />
       <GlobalHeader />
       <main style={{
@@ -27,6 +27,9 @@ export default function Shell({ children }) {
         overflow: 'auto',
         background: 'var(--color-bg-surface)',
         padding: isEdgeToEdge ? 0 : '16px',
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 0
       }}>
         {children}
       </main>

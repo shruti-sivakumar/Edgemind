@@ -52,7 +52,7 @@ export default function ResourceRadar() {
   }, [findings])
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', width: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%' }}>
 
       {/* ── Top bar ─────────────────────────────────────────────────── */}
       <div style={{
@@ -119,7 +119,7 @@ export default function ResourceRadar() {
       </div>
 
       {/* ── Body ────────────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, width: '100%' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, width: '100%', minHeight: 0 }}>
         <div style={{ flex: '0 1 auto', padding: '1vh 1vw 0 1vw', borderBottom: '1px solid var(--color-border-card)', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
           <OverviewGrid onSelectPod={setSelectedPod} nsFilter={nsFilter} selectedPod={selectedPod} />
         </div>

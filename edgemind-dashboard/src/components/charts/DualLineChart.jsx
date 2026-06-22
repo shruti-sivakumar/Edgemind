@@ -14,6 +14,7 @@ export default function DualLineChart({
   label1 = 'A', label2 = 'B',
   unit = '',
   height = 80,
+  style,
 }) {
   const maxLen = Math.max(data1.length, data2.length)
   const chartData = Array.from({ length: maxLen }, (_, i) => ({
@@ -23,7 +24,8 @@ export default function DualLineChart({
   }))
 
   return (
-    <ResponsiveContainer width="100%" height={height}>
+    <div style={{ flex: 1, minHeight: 0, ...style }}>
+      <ResponsiveContainer width="100%" height={height}>
       <LineChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
         <XAxis dataKey="i" hide />
         <YAxis hide domain={['auto', 'auto']} />
@@ -36,6 +38,7 @@ export default function DualLineChart({
         <Line type="monotone" dataKey="a" name={label1} stroke={color1} strokeWidth={1.5} dot={false} isAnimationActive={false} connectNulls />
         <Line type="monotone" dataKey="b" name={label2} stroke={color2} strokeWidth={1.5} dot={false} isAnimationActive={false} connectNulls />
       </LineChart>
-    </ResponsiveContainer>
+      </ResponsiveContainer>
+    </div>
   )
 }

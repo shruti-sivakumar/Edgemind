@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppState } from '../../core/store/AppContext.jsx'
 import AgentTag from '../../components/ui/AgentTag.jsx'
@@ -47,60 +47,68 @@ export default function EventPopover({ finding: f, onClose, xLeft }) {
       style={{
         position: 'absolute',
         left: Math.max(0, Math.min(Number(xLeft) || 0, 660)),
-        top: 30, zIndex: 30, width: 280,
-        background: 'var(--color-bg-card)', border: '1px solid var(--color-border-primary)',
-        borderRadius: 6, padding: 12, boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
+        top: 32, zIndex: 30, width: 300,
+        background: 'var(--color-bg-card)', 
+        border: '1px solid var(--color-border-card)',
+        borderRadius: 12, padding: 16, 
+        boxShadow: '0 12px 48px rgba(0,0,0,0.15), 0 4px 16px rgba(0,0,0,0.08)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <SeverityBadge severity={f.severity} />
         <AgentTag agent={f.agent} />
-        <span style={{ fontSize: 11, color: 'var(--color-text-primary)', flex: 1, fontWeight: 600 }}>{f.anomaly_type}</span>
-        <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--color-text-tertiary)', cursor: 'pointer', fontSize: 14, lineHeight: 1 }}>×</button>
+        <span style={{ fontSize: 13, color: 'var(--color-text-primary)', flex: 1, fontWeight: 700 }}>{f.anomaly_type}</span>
+        <button onClick={onClose} style={{ background: 'var(--color-bg-surface)', border: 'none', borderRadius: '50%', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-tertiary)', cursor: 'pointer', fontSize: 16, transition: 'background 0.2s' }}>×</button>
       </div>
 
-      <Row label="Pod" value={f.pod} />
-      <Row label="Namespace" value={f.namespace} />
-      <Row label="Timestamp" value={ts} />
-      <Row label="Agent" value={f.agent} />
-      <Row label="Severity" value={f.severity} />
-      <Row label="Metric" value={metric} />
-      <Row label="Value" value={value} />
-      <Row label="Baseline" value={baseline} />
-      <Row label="Deviation" value={deviation != null ? `${deviation}σ` : null} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <Row label="Pod" value={f.pod} />
+        <Row label="Namespace" value={f.namespace} />
+        <Row label="Timestamp" value={ts} />
+        <Row label="Agent" value={f.agent} />
+        <Row label="Metric" value={metric} />
+        <Row label="Value" value={value} />
+        <Row label="Baseline" value={baseline} />
+        <Row label="Deviation" value={deviation != null ? `${deviation}σ` : null} />
+      </div>
 
       {f.confidence != null && (
-        <div style={{ padding: '5px 0' }}>
+        <div style={{ padding: '8px 0', borderBottom: '1px solid var(--color-border-card)' }}>
           <ConfidenceTier value={f.confidence} />
         </div>
       )}
 
       {evidenceEntries.length > 0 && (
-        <div style={{ marginTop: 6, fontSize: 10, color: 'var(--color-text-tertiary)' }}>
-          <div style={{ fontWeight: 700, marginBottom: 3 }}>EVIDENCE</div>
-          {evidenceEntries.slice(0, 4).map(([k, v]) => (
-            <div key={k} style={{ marginBottom: 1 }}>• <span style={{ color: 'var(--color-text-secondary)' }}>{String(v)}</span></div>
-          ))}
+        <div style={{ marginTop: 12, padding: '10px 12px', background: 'var(--color-bg-surface)', borderRadius: 8 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-text-tertiary)', letterSpacing: '0.05em', marginBottom: 6 }}>EVIDENCE LOGS</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {evidenceEntries.slice(0, 4).map(([k, v]) => (
+              <div key={k} style={{ display: 'flex', gap: 6, fontSize: 11, color: 'var(--color-text-secondary)' }}>
+                <span style={{ color: 'var(--color-info)', fontSize: 14, lineHeight: 1 }}>•</span>
+                <span style={{ lineHeight: 1.3 }}>{String(v)}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
       {corrAlert ? (
-        <div style={{ marginTop: 8, padding: '6px 8px', background: 'var(--color-info-tint)', borderRadius: 4, border: '1px solid rgba(0,76,151,0.25)' }}>
-          <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', marginBottom: 3 }}>CORRELATED ALERT</div>
-          <div style={{ fontSize: 11, color: 'var(--color-info)', fontWeight: 600 }}>
-            {corrAlert.alert_type}
+        <div style={{ marginTop: 12, padding: '10px 12px', background: 'var(--color-info-tint)', borderRadius: 8, border: '1px solid rgba(0,76,151,0.25)' }}>
+          <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', marginBottom: 4, fontWeight: 700, letterSpacing: '0.05em' }}>CORRELATED ALERT</div>
+          <div style={{ fontSize: 12, color: 'var(--color-info)', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span>{corrAlert.alert_type}</span>
             {corrAlert.confidence != null && (
-              <span style={{ fontSize: 10, color: 'var(--color-text-tertiary)', marginLeft: 6, fontWeight: 400 }}>
-                conf {(corrAlert.confidence * 100).toFixed(0)}%
+              <span style={{ fontSize: 10, color: 'var(--color-text-secondary)', background: 'var(--color-bg-card)', padding: '2px 6px', borderRadius: 4 }}>
+                {(corrAlert.confidence * 100).toFixed(0)}% Match
               </span>
             )}
           </div>
-          <Link to="/investigate" style={{ display: 'inline-block', marginTop: 4, fontSize: 10, color: 'var(--color-info)' }}>
+          <Link to="/investigate" style={{ display: 'inline-block', marginTop: 8, fontSize: 11, fontWeight: 600, color: 'var(--color-info)', textDecoration: 'none' }}>
             View full AI analysis →
           </Link>
         </div>
       ) : corrId ? (
-        <Link to="/investigate" style={{ display: 'inline-block', marginTop: 8, fontSize: 11, color: 'var(--color-info)' }}>
+        <Link to="/investigate" style={{ display: 'inline-block', marginTop: 12, fontSize: 11, fontWeight: 600, color: 'var(--color-info)', textDecoration: 'none' }}>
           View full AI analysis →
         </Link>
       ) : null}

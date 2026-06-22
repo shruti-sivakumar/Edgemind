@@ -15,15 +15,17 @@ export default function RollingLineChart({
   height = 80,
   anomalyThreshold,   // number — draws a ReferenceLine
   label,
+  style,
 }) {
   const chartData = data.map((v, i) => ({ i, v: v ?? 0 }))
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', ...style }}>
       {label && (
-        <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 2 }}>{label}</div>
+        <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 2, flexShrink: 0 }}>{label}</div>
       )}
-      <ResponsiveContainer width="100%" height={height}>
+      <div style={{ flex: 1, minHeight: 0 }}>
+        <ResponsiveContainer width="100%" height={height}>
         <AreaChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
           <defs>
             <linearGradient id={`grad-${color.replace(/[^a-z]/gi, '')}`} x1="0" y1="0" x2="0" y2="1">
@@ -52,6 +54,7 @@ export default function RollingLineChart({
           />
         </AreaChart>
       </ResponsiveContainer>
+      </div>
     </div>
   )
 }

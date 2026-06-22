@@ -25,7 +25,7 @@ export default function DependencyGraph() {
   }, [searchParams])
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
       <GraphControls
         showPvcEdges={showPvcEdges}   setShowPvcEdges={setShowPvcEdges}
         showMonitoring={showMonitoring} setShowMonitoring={setShowMonitoring}

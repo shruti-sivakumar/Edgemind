@@ -42,15 +42,19 @@ function getLabel(anomaly_type, windowMs) {
 
 export default function EventBlock({ finding, xLeft, width, windowMs = 30 * 60 * 1000 }) {
   const [open, setOpen] = useState(false)
+  const [hovered, setHovered] = useState(false)
   const color = EVENT_BLOCK_COLORS[finding.anomaly_type] || SEVERITY_COLORS[finding.severity] || 'var(--color-info)'
-  const w = Math.max(8, width)
+  const w = Math.max(12, width)
   const outlined = ['cpu_throttle', 'pvc_fill', 'data_stale'].includes(finding.anomaly_type)
   const isPulse = finding.anomaly_type === 'pre_oom'
+  const isCritical = finding.severity === 'critical'
   const label = getLabel(finding.anomaly_type, windowMs)
 
   return (
     <>
       <div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
         onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
         className={isPulse ? 'animate-oom-pulse' : ''}
         title={`${finding.pod} · ${finding.anomaly_type} · ${finding.severity}`}
@@ -60,17 +64,21 @@ export default function EventBlock({ finding, xLeft, width, windowMs = 30 * 60 *
           top: 4,
           width: w,
           height: 20,
-          background: outlined ? 'transparent' : color,
-          border: `1px ${finding.anomaly_type === 'data_stale' ? 'dashed' : 'solid'} ${color}`,
-          borderRadius: 3,
-          opacity: isPulse ? 1 : 0.85,
+          background: outlined ? (hovered ? `${color}1A` : 'transparent') : color,
+          border: `1.5px ${finding.anomaly_type === 'data_stale' ? 'dashed' : 'solid'} ${color}`,
+          borderRadius: 10, // Pill shape
+          opacity: isPulse ? 1 : (hovered ? 1 : 0.9),
           cursor: 'pointer',
           overflow: 'hidden',
-          display: 'flex', alignItems: 'center', paddingLeft: 3,
+          display: 'flex', alignItems: 'center', paddingLeft: w > 20 ? 6 : 2,
+          boxShadow: isCritical && !outlined ? `0 0 8px ${color}80` : (hovered ? '0 2px 4px rgba(0,0,0,0.1)' : 'none'),
+          transition: 'all 0.15s ease',
+          transform: hovered ? 'scale(1.05)' : 'scale(1)',
+          zIndex: hovered ? 10 : 1,
         }}
       >
-        {w > 20 && label && (
-          <span style={{ fontSize: 9, color: outlined ? color : '#fff', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden' }}>
+        {w > 26 && label && (
+          <span style={{ fontSize: 9, color: outlined ? color : '#fff', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', letterSpacing: '0.02em' }}>
             {label}
           </span>
         )}
