@@ -4,11 +4,25 @@ import { useFaultInjection } from '../../core/api/useFaultInjection.js'
 import { SCENARIOS } from '../../core/constants/faultModes.js'
 import ScenarioCard from './ScenarioCard.jsx'
 
+async function _setLeak(enabled) {
+  try {
+    await fetch('/featureextractor/leak', { method: enabled ? 'POST' : 'DELETE' })
+  } catch {
+    // feature-extractor not port-forwarded; skip
+  }
+}
+
+async function _setFill(enabled) {
+  try {
+    await fetch('/alertmanager/fill', { method: enabled ? 'POST' : 'DELETE' })
+  } catch {
+    // alert-manager not reachable; skip
+  }
+}
+
 export default function ScenarioLauncher({ showError }) {
   const { demoLab } = useAppState()
   const dispatch = useDispatch()
-  const [runningScenario, setRunningScenario] = useState(null)
-  const [completedScenario, setCompletedScenario] = useState(null)
   const [currentIndex, setCurrentIndex] = useState(0)
 
   const pump1 = useFaultInjection('pump1')
@@ -19,35 +33,51 @@ export default function ScenarioLauncher({ showError }) {
   const anyActiveFault = Object.values(demoLab.activeFaults || {}).some(Boolean)
 
   async function handleLaunch(scenario) {
-    if (anyActiveFault && runningScenario !== scenario.id) {
-      showError("Cannot launch scenario: Another fault or scenario is currently active. Please stop it first.")
+    // Block launching a second scenario while another fault/scenario is active
+    if (anyActiveFault && demoLab.activeScenarioId !== scenario.id) {
+      showError?.("Cannot launch scenario: Another fault or scenario is currently active. Please stop it first.")
       return
     }
-
-    setRunningScenario(scenario.id)
-    setCompletedScenario(null)
+    // Inject physical fault if this scenario targets a pump
     if (scenario.faultMode && scenario.targetPump) {
       const inj = injectors[scenario.targetPump]
       if (inj) await inj.inject(scenario.faultMode)
     }
-    dispatch({ type: 'SET_DEMO_SCENARIO', payload: { activeScenarioId: scenario.id, scenarioStartedAt: new Date().toISOString() } })
+    // Enable memory leak for scenario 2
+    if (scenario.id === 2) {
+      await _setLeak(true)
+    }
+    // Start PVC fill for scenario 3 (self-cleaning on the backend)
+    if (scenario.id === 3) {
+      await _setFill(true)
+    }
+    // Global store so scenario state persists across page navigation
+    dispatch({ type: 'SET_DEMO_SCENARIO', payload: {
+      activeScenarioId: scenario.id,
+      completedScenarioId: null,
+      scenarioStartedAt: new Date().toISOString(),
+    }})
   }
 
   async function handleClear(scenario) {
+    // Clear physical fault
     if (scenario.targetPump) {
       const inj = injectors[scenario.targetPump]
       if (inj) await inj.clear()
     }
-    if (runningScenario === scenario.id) {
-      setCompletedScenario(scenario.id)
-      setRunningScenario(null)
-    } else {
-      setCompletedScenario(null)
+    // Disable memory leak
+    if (scenario.id === 2) {
+      await _setLeak(false)
     }
-    dispatch({ type: 'SET_DEMO_SCENARIO', payload: { activeScenarioId: null } })
+    // Stop PVC fill + clean up
+    if (scenario.id === 3) {
+      await _setFill(false)
+    }
+    dispatch({ type: 'SET_DEMO_SCENARIO', payload: {
+      activeScenarioId: null,
+      completedScenarioId: scenario.id,
+    }})
   }
-
-
 
   const nextScenario = () => setCurrentIndex((prev) => (prev + 1) % SCENARIOS.length)
   const prevScenario = () => setCurrentIndex((prev) => (prev === 0 ? SCENARIOS.length - 1 : prev - 1))
@@ -78,9 +108,9 @@ export default function ScenarioLauncher({ showError }) {
             <div key={scen.id} style={{ width: `${100 / SCENARIOS.length}%`, height: '100%', paddingBottom: 4, paddingRight: 4, paddingLeft: 2 }}>
               <ScenarioCard
                 scenario={scen}
-                running={runningScenario === scen.id}
-                completed={completedScenario === scen.id}
-                disabled={anyActiveFault || (runningScenario && runningScenario !== scen.id)}
+                running={demoLab.activeScenarioId === scen.id}
+                completed={demoLab.completedScenarioId === scen.id}
+                disabled={anyActiveFault || (demoLab.activeScenarioId != null && demoLab.activeScenarioId !== scen.id)}
                 onLaunch={() => handleLaunch(scen)}
                 onClear={() => handleClear(scen)}
               />
