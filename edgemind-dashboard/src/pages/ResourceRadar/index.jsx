@@ -30,14 +30,26 @@ function useLastUpdatedSecs(metrics) {
 
 export default function ResourceRadar() {
   const [searchParams] = useSearchParams()
-  const [selectedPod, setSelectedPod] = useState(searchParams.get('pod') || 'sensor-sim-1')
-  const [nsFilter, setNsFilter] = useState('pump-station')
+  const initialPod = searchParams.get('pod') || 'sensor-sim-1'
+  
+  const [selectedPod, setSelectedPod] = useState(initialPod)
+  const [nsFilter, setNsFilter] = useState(() => {
+    if (PUMP_STATION_PODS.includes(initialPod)) return 'pump-station'
+    if (MONITORING_PODS.includes(initialPod)) return 'monitoring'
+    return 'kube-system'
+  })
+  
   const { findings, metrics } = useAppState()
   const secsAgo = useLastUpdatedSecs(metrics)
 
   useEffect(() => {
     const pod = searchParams.get('pod')
-    if (pod) setSelectedPod(pod)
+    if (pod) {
+      setSelectedPod(pod)
+      if (PUMP_STATION_PODS.includes(pod)) setNsFilter('pump-station')
+      else if (MONITORING_PODS.includes(pod)) setNsFilter('monitoring')
+      else setNsFilter('kube-system')
+    }
   }, [searchParams])
 
   const healthCounts = useMemo(() => {

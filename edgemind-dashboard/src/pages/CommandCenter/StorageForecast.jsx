@@ -86,8 +86,8 @@ export default function StorageForecast() {
   const topMemWarning = dmdMemWarnings[0] ?? null
 
   return (
-    <div>
-      <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--color-text-tertiary)', marginBottom: 5 }}>
+    <div style={{ padding: '6px 8px', background: 'var(--color-bg-surface)', borderRadius: 6, border: '1px solid var(--color-border-secondary)' }}>
+      <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--color-text-tertiary)', marginBottom: 8 }}>
         STORAGE & RESOURCE FORECAST
       </div>
       <PvcRow label="PVC-1 historian-data" pvc={pvcs['historian-data']} />

@@ -34,6 +34,23 @@ function ConnPill({ label, ok }) {
   )
 }
 
+function ProgressBar({ value, max, label, color }) {
+  const pct = Math.min(100, Math.max(0, (value / max) * 100))
+  return (
+    <div style={{ marginBottom: 6 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginBottom: 2 }}>
+        <span style={{ color: 'var(--color-text-tertiary)' }}>{label}</span>
+        <span style={{ color: 'var(--color-text-secondary)', fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
+          {value != null ? value : '—'} / {max}
+        </span>
+      </div>
+      <div style={{ height: 4, background: 'var(--color-bg-surface)', borderRadius: 2, overflow: 'hidden' }}>
+        <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 2 }} />
+      </div>
+    </div>
+  )
+}
+
 export default function ClusterLoadMini() {
   const { metrics, ws, agentsReady } = useAppState()
 
@@ -49,15 +66,35 @@ export default function ClusterLoadMini() {
     return { cores, memGb: memBytes / 1e9, reporting }
   }, [metrics])
 
+  // Assuming a max cluster capacity for the visual bars (e.g. 16 cores, 32 GB ram)
+  const MAX_CORES = 16
+  const MAX_MEM = 32
+
   return (
-    <div>
-      <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--color-text-tertiary)', marginBottom: 5 }}>
-        CLUSTER LOAD
+    <div style={{ padding: '6px 8px', background: 'var(--color-bg-surface)', borderRadius: 6, border: '1px solid var(--color-border-secondary)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+        <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--color-text-tertiary)' }}>
+          CLUSTER LOAD
+        </div>
+        <div style={{ fontSize: 9, color: 'var(--color-text-tertiary)' }}>
+          {reporting} pods
+        </div>
       </div>
-      <Row label="Aggregate CPU" value={reporting ? `${cores.toFixed(2)} cores` : '—'} />
-      <Row label="Aggregate memory" value={reporting ? `${memGb.toFixed(2)} GB` : '—'} />
-      <Row label="Pods reporting" value={`${reporting}`} />
-      <div style={{ display: 'flex', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
+      
+      <ProgressBar 
+        label="CPU (cores)" 
+        value={reporting ? Number(cores.toFixed(2)) : null} 
+        max={MAX_CORES} 
+        color="var(--color-info)" 
+      />
+      <ProgressBar 
+        label="Memory (GB)" 
+        value={reporting ? Number(memGb.toFixed(2)) : null} 
+        max={MAX_MEM} 
+        color="var(--color-warning)" 
+      />
+      
+      <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
         <ConnPill label="STREAM" ok={ws.connected} />
         <ConnPill label="AGENTS" ok={agentsReady} />
       </div>

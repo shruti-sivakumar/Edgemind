@@ -1,4 +1,4 @@
-﻿import { useMemo } from 'react'
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppState } from '../../core/store/AppContext.jsx'
 import { latestActiveCorrelation } from '../../core/selectors/correlations.js'
@@ -16,6 +16,7 @@ function Panel({ children, onClick }) {
       onClick={onClick}
       title={onClick ? 'Click to open AI Investigation' : undefined}
       style={{
+        height: '100%',
         background: 'var(--color-bg-card)',
         border: '1.5px solid var(--color-border-card)',
         borderRadius: 6, padding: '10px 14px',

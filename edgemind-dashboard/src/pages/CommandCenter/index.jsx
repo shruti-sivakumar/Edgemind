@@ -58,12 +58,16 @@ export default function CommandCenter() {
       </div>
 
       {/* Band 3 — agents | infrastructure */}
-      <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-        <div style={{ flex: '1 1 0', minWidth: 0 }}>
-          <AgentGrid />
+      <div style={{ display: 'flex', gap: 12, alignItems: 'stretch' }}>
+        <div style={{ flex: '1 1 0', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <InfraMonitor />
+          </div>
         </div>
-        <div style={{ flex: '1 1 0', minWidth: 0 }}>
-          <InfraMonitor />
+        <div style={{ flex: '1 1 0', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <AgentGrid />
+          </div>
         </div>
       </div>
 
