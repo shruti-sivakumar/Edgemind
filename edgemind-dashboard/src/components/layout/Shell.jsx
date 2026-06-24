@@ -7,6 +7,7 @@ import { useSensorReadings } from '../../core/api/useSensorReadings.js'
 import { useMetricsPoll } from '../../core/api/useMetricsPoll.js'
 import GlobalHeader from './GlobalHeader.jsx'
 import CopilotChat from '../ui/CopilotChat.jsx'
+import DMDGlobalToast from '../ui/DMDGlobalToast.jsx'
 
 function DataHooks() {
   useWebSocket()
@@ -38,6 +39,7 @@ export default function Shell({ children }) {
         {children}
       </main>
       <CopilotChat />
+      <DMDGlobalToast />
     </div>
   )
 }

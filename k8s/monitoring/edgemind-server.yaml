@@ -31,22 +31,15 @@ spec:
               value: "http://172.18.0.1:11434"
             - name: OLLAMA_MODEL
               value: "qwen3:8b"
-            - name: GROQ_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: groq-credentials
-                  key: api-key
-            - name: GROQ_MODEL
-              value: "llama-3.3-70b-versatile"
             - name: LLM_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: groq-credentials
+                  name: llm-credentials
                   key: api-key
             - name: LLM_BASE_URL
-              value: "https://api.groq.com/openai/v1"
+              value: "https://api.openai.com/v1"
             - name: LLM_MODEL
-              value: "llama-3.3-70b-versatile"
+              value: "gpt-4o"
             - name: LOG_LEVEL
               value: "INFO"
           resources:

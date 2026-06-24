@@ -1,3 +1,5 @@
+import os
+
 # CPU anomaly types
 CPU_SPIKE = "cpu_spike"
 CPU_THROTTLE = "cpu_throttle"
@@ -160,7 +162,7 @@ CRITICAL_K8S_EVENTS = {
 DMD_WINDOW              = 30      # rolling buffer size (snapshots)
 DMD_WARMUP_MIN          = 20      # minimum snapshots before first DMD fit
 DMD_FIT_INTERVAL        = 3       # fit every N collector cycles (45s at 15s/cycle)
-DMD_FORECAST_STEPS      = 8       # steps to forecast ahead (2 min at 15s/step)
+DMD_FORECAST_STEPS      = int(os.environ.get("DMD_FORECAST_STEPS", 8))  # steps to forecast ahead
 DMD_N_MODES             = None    # None = keep all significant SVD modes
 
 # Growth-rate threshold: σ > 0.001/s means amplitude doubles in < 12 minutes

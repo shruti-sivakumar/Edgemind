@@ -67,6 +67,8 @@ function WarningRow({ w, isLast }) {
   const growthPct = w.dominant_growth_rate_per_sec != null
     ? (w.dominant_growth_rate_per_sec * 100).toFixed(3)
     : null
+  
+  const isUrgent = w.predicted_breach_seconds != null && w.predicted_breach_seconds <= 900
 
   return (
     <div style={{
@@ -88,12 +90,19 @@ function WarningRow({ w, isLast }) {
             {metricLabel(w.metric)}
           </span>
         </div>
-        <span style={{
-          fontSize: 11,
-          fontWeight: 700,
-          color,
-          fontVariantNumeric: 'tabular-nums',
-        }}>
+        <span 
+          className={isUrgent ? 'animate-pulse-dot' : ''}
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: isUrgent ? '#ffffff' : color,
+            backgroundColor: isUrgent ? (w.predicted_breach_seconds <= 30 ? 'var(--color-danger)' : w.predicted_breach_seconds <= 75 ? 'var(--color-warning)' : 'var(--color-text-info)') : 'transparent',
+            padding: isUrgent ? '2px 8px' : '0',
+            borderRadius: isUrgent ? '12px' : '0',
+            fontVariantNumeric: 'tabular-nums',
+            boxShadow: isUrgent ? '0 2px 4px var(--color-shadow)' : 'none'
+          }}
+        >
           in {fmtSeconds(w.predicted_breach_seconds)}
         </span>
       </div>
